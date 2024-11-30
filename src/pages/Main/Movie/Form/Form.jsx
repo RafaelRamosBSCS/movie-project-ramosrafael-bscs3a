@@ -2,11 +2,12 @@ import axios from 'axios';
 import { useCallback, useEffect, useState } from 'react';
 import { Outlet, useNavigate, useParams } from 'react-router-dom';
 import './Form.css';
+
 const Form = () => {
   const [query, setQuery] = useState('');
   const [searchedMovieList, setSearchedMovieList] = useState([]);
   const [selectedMovie, setSelectedMovie] = useState(undefined);
-  const [movie, setMovie] = useState(undefined);
+  const [movie, setMovie, ] = useState(undefined);
   const navigate = useNavigate();
   let { movieId } = useParams();
 
@@ -30,15 +31,13 @@ const Form = () => {
   };
 
   const handleSave = () => {
-    const accessToken = localStorage.getItem('accessToken');
-    console.log(accessToken);
+    const accessToken = localStorage.getItem("accessToken");
     if (selectedMovie === undefined) {
-      //add validation
-      alert('Please search and select a movie.');
+      alert("Please search and select a movie.");
     } else {
       const data = {
         tmdbId: selectedMovie.id,
-        title: selectedMovie.title,
+        title: selectedMovie.original_title,
         overview: selectedMovie.overview,
         popularity: selectedMovie.popularity,
         releaseDate: selectedMovie.release_date,
@@ -48,9 +47,9 @@ const Form = () => {
         isFeatured: 0,
       };
 
-      const request = axios({
-        method: 'post',
-        url: '/movies',
+      axios({
+        method: movieId ? "patch" : "post",
+        url: movieId ? `/movies/${movieId}` : "/movies",
         data: data,
         headers: {
           Authorization: `Bearer ${accessToken}`,
@@ -58,7 +57,8 @@ const Form = () => {
       })
         .then((saveResponse) => {
           console.log(saveResponse);
-          alert('Success');
+          alert("Success");
+          navigate("/main/movies");
         })
         .catch((error) => console.log(error));
     }
@@ -113,55 +113,84 @@ const Form = () => {
       )}
 
       <div className='container'>
-        <form>
+      <form>
           {selectedMovie ? (
             <img
-              className='poster-image'
+              className="poster-image"
               src={`https://image.tmdb.org/t/p/original/${selectedMovie.poster_path}`}
+              alt={selectedMovie.original_title}
             />
           ) : (
-            ''
+            ""
           )}
-          <div className='field'>
+          <div className="field">
             Title:
             <input
-              type='text'
-              value={selectedMovie ? selectedMovie.original_title : ''}
+              type="text"
+              disabled={!movieId}
+              value={selectedMovie ? selectedMovie.original_title : ""}
+              onChange={(e) =>
+                setSelectedMovie({
+                  ...selectedMovie,
+                  original_title: e.target.value,
+                })
+              }
             />
           </div>
-          <div className='field'>
+          <div className="field">
             Overview:
             <textarea
+              disabled={!movieId}
               rows={10}
-              value={selectedMovie ? selectedMovie.overview : ''}
+              value={selectedMovie ? selectedMovie.overview : ""}
+              onChange={(e) =>
+                setSelectedMovie({ ...selectedMovie, overview: e.target.value })
+              }
             />
           </div>
-
-          <div className='field'>
+          <div className="field">
             Popularity:
             <input
-              type='text'
-              value={selectedMovie ? selectedMovie.popularity : ''}
+              type="text"
+              disabled={!movieId}
+              value={selectedMovie ? selectedMovie.popularity : ""}
+              onChange={(e) =>
+                setSelectedMovie({
+                  ...selectedMovie,
+                  popularity: e.target.value,
+                })
+              }
             />
           </div>
-
-          <div className='field'>
+          <div className="field">
             Release Date:
             <input
-              type='text'
-              value={selectedMovie ? selectedMovie.release_date : ''}
+              type="text"
+              disabled={!movieId}
+              value={selectedMovie ? selectedMovie.release_date : ""}
+              onChange={(e) =>
+                setSelectedMovie({
+                  ...selectedMovie,
+                  release_date: e.target.value,
+                })
+              }
             />
           </div>
-
-          <div className='field'>
+          <div className="field">
             Vote Average:
             <input
-              type='text'
-              value={selectedMovie ? selectedMovie.vote_average : ''}
+              type="text"
+              disabled={!movieId}
+              value={selectedMovie ? selectedMovie.vote_average : ""}
+              onChange={(e) =>
+                setSelectedMovie({
+                  ...selectedMovie,
+                  vote_average: e.target.value,
+                })
+              }
             />
           </div>
-
-          <button type='button' onClick={handleSave}>
+          <button type="button" onClick={handleSave}>
             Save
           </button>
         </form>

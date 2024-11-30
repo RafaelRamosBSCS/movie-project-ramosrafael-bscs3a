@@ -1,11 +1,12 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useMovieContext } from '../../../../context/MovieContext';
 import { useNavigate, useParams } from 'react-router-dom';
+import MovieGenres from '../../../../components/MovieGenre';
 import axios from 'axios';
+import './View.css';
 
 function View() {
-  const { movie, setMovie } = useMovieContext();
-
+  const { movie, setMovie, genres } = useMovieContext();
   const { movieId } = useParams();
   const navigate = useNavigate();
 
@@ -14,31 +15,44 @@ function View() {
       axios
         .get(`/movies/${movieId}`)
         .then((response) => {
-          setMovie(response.data);
+          const movieData = response.data;
+          const releaseYear = movieData.releaseDate ? movieData.releaseDate.split('-')[0] : null;
+
+          setMovie({
+            ...movieData,
+            releaseYear,
+          });
         })
         .catch((e) => {
           console.log(e);
           navigate('/');
         });
     }
-    return () => {};
-  }, [movieId]);
+  }, [movieId, navigate, setMovie]);
+
   return (
     <>
       {movie && (
         <>
           <div>
             <div className='banner'>
-              <h1>{movie.title}</h1>
+              <h1>{movie.title} ({movie.releaseYear})</h1>
             </div>
-            <h3>{movie.overview}</h3>
-            {JSON.stringify(movie)}
           </div>
-
+          <div>
+            <div className='info'>
+              <h3>{movie.overview}</h3>
+              <MovieGenres movieId={movie.tmdbId} />
+            </div>
+          </div>
           {movie.casts && movie.casts.length && (
             <div>
               <h1>Cast & Crew</h1>
-              {JSON.stringify(movie.casts)}
+              <ul className="cast-list">
+                {movie.casts.map((cast, index) => (
+                  <li key={index}>{cast.name}</li>
+                ))}
+              </ul>
             </div>
           )}
 
