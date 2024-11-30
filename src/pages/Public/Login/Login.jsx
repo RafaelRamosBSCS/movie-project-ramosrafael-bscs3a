@@ -43,26 +43,37 @@ function Login() {
   const handleLogin = async () => {
     const data = { email, password };
     setStatus('loading');
-
-    await axios({
-      method: 'post',
-      url: '/admin/login',
-      data,
-      headers: { 'Access-Control-Allow-Origin': '*' },
-    })
-      .then((res) => {
-        console.log(res);
-        //store response access token to localstorage
-        localStorage.setItem('accessToken', res.data.access_token);
-        navigate('/main/movies');
+  
+    const loginAttempts = [
+      { url: '/admin/login', role: 'admin', successRoute: '/main/movies' },
+      { url: '/user/login', role: 'user', successRoute: '/' }
+    ];
+  
+    for (const attempt of loginAttempts) {
+      try {
+        const response = await axios.post(attempt.url, data, {
+          headers: { 
+            'Content-Type': 'application/json',
+            'Access-Control-Allow-Origin': '*' 
+          }
+        });
+  
+        localStorage.setItem('accessToken', response.data.access_token);
+        localStorage.setItem('userRole', attempt.role);
+        navigate(attempt.successRoute);
         setStatus('idle');
-      })
-      .catch((e) => {
-        setError(e.response.data.message);
-        console.log(e);
-        setStatus('idle');
-        // alert(e.response.data.message);
-      });
+        return;
+  
+      } catch (error) {
+        // Continue to next login attempt if this one fails
+        console.log(`${attempt.role} login failed`);
+        continue;
+      }
+    }
+  
+    // If all login attempts fail
+    setError('Invalid credentials');
+    setStatus('idle');
   };
 
   useEffect(() => {
@@ -141,6 +152,11 @@ function Login() {
             </div>
           </div>
         </form>
+        <div>
+          <button onClick={() => navigate('/')}>
+            Back to Home
+          </button>
+        </div>
       </div>
     </div>
   );

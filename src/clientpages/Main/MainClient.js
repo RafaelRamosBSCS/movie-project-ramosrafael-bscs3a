@@ -5,19 +5,32 @@ import './Main.css';
 function MainClient() {
   const accessToken = localStorage.getItem('accessToken');
   const navigate = useNavigate();
+
   const handleLogout = () => {
-    localStorage.removeItem('accessToken');
+    try {
+      // Optional: Call backend logout endpoint if needed
+      // axios.post('/logout', {}, {
+      //   headers: { Authorization: `Bearer ${accessToken}` }
+      // });
+
+      // Remove tokens
+      localStorage.removeItem('accessToken');
+      localStorage.removeItem('userRole');
+
+      // Navigate to login page
+      navigate('/login');
+    } catch (error) {
+      console.error('Logout failed', error);
+    }
   };
 
   useEffect(() => {
-    if (
-      accessToken === undefined ||
-      accessToken === '' ||
-      accessToken === null
-    ) {
-      handleLogout();
+    // Check if token exists, if not redirect to login
+    if (!accessToken) {
+      navigate('/');
     }
-  }, []);
+  }, [accessToken, navigate]);
+
   return (
     <div className='Main'>
       <div className='container'>
@@ -28,11 +41,19 @@ function MainClient() {
             </li>
             {accessToken ? (
               <li className='logout'>
-                <a onClick={handleLogout}>Logout</a>
+                <a 
+                  href="#" 
+                  onClick={(e) => {
+                    e.preventDefault(); // Prevent default link behavior
+                    handleLogout();
+                  }}
+                >
+                  Logout
+                </a>
               </li>
             ) : (
-              <li className='login'>
-                <a onClick={() => alert('Go to Login page')}>Login</a>
+              <li className='login'> 
+                <a onClick={() => navigate('/login')}>Login</a>
               </li>
             )}
           </ul>
