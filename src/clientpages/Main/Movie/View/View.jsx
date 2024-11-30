@@ -35,6 +35,16 @@ function View() {
       {movie && (
         <>
           <div>
+            <div className="poster-image" >
+            <img
+                src={movie.posterPath}
+                alt={movie?.title || "Movie Poster"}
+              style={{
+                width: "200px",
+                height: "auto", 
+              }}
+              />
+            </div>
             <div className='banner'>
               <h1>{movie.title} ({movie.releaseYear})</h1>
             </div>
