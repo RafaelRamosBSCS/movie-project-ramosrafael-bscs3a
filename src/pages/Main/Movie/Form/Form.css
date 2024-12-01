@@ -30,3 +30,57 @@ nav li {
   border-width: 1px 1px 0 1px;
   margin: 0 5px 0 0;
 }
+
+.videolist {
+  display: flex;
+}
+
+.videosCont {
+  background-color: rgb(196, 196, 196);
+}
+
+.videosMainCont {
+  background-color: black;
+  overflow: auto;
+}
+
+.photosMainCont {
+  background-color: gray; /* Match the background color of the videos section */
+  overflow: auto; /* Allow scrolling if content overflows */
+}
+
+.photosCont {
+  background-color: rgb(196, 196, 196); /* Match the container color of videos */
+  margin: 10px;
+  padding: 10px;
+  display: inline-block; /* Ensure photo containers are inline */
+  border-radius: 8px; /* Add slight rounding for better aesthetics */
+}
+
+.photo-preview {
+  width: 150px; /* Set the width of the photo preview */
+  height: auto; /* Maintain aspect ratio */
+  display: block; /* Ensure the image is displayed as a block */
+  margin-bottom: 10px; /* Space between the image and description */
+}
+
+.photosCont p {
+  text-align: center; /* Center-align the description */
+  font-size: 14px; /* Adjust font size */
+  color: black; /* Ensure readability */
+}
+
+.photosCont button {
+  display: block; /* Ensure the button takes up full width */
+  margin: 10px auto; /* Center-align the button */
+  padding: 5px 10px; /* Add padding for better aesthetics */
+  background-color: lightblue; /* Highlight button color */
+  border: none; /* Remove border for a clean look */
+  border-radius: 4px; /* Add slight rounding */
+  cursor: pointer; /* Change cursor to pointer on hover */
+}
+
+.photosCont button:hover {
+  background-color: darkblue; /* Darken color on hover */
+  color: white; /* Change text color to white */
+}

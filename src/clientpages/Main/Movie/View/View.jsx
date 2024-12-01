@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useMovieContext } from '../../../../context/MovieContext';
 import { useNavigate, useParams } from 'react-router-dom';
-import MovieGenres from '../../../../components/MovieGenre';
+import MovieGenres from '../../../../components/MovieGenres/MovieGenres';
 import axios from 'axios';
 import './View.css';
 
@@ -69,7 +69,20 @@ function View() {
           {movie.videos && movie.videos.length && (
             <div>
               <h1>Videos</h1>
-              {JSON.stringify(movie.videos)}
+              {movie.videos && movie.videos[0] ? (
+            <div className="video-preview">
+              {/* Assuming the video.key is the unique identifier for a YouTube video */}
+              <iframe
+                width="560"
+                height="315"
+                src={`https://www.youtube.com/embed/${movie.videos[0]?.videoKey}`}
+                title={movie.videos[0]?.name}
+                frameBorder="0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+              ></iframe>
+            </div>
+          ) : null}
             </div>
           )}
 
