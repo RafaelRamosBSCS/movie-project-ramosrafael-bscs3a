@@ -18,19 +18,22 @@ const Form = () => {
   const [selectedImage, setSelectedImage] = useState([]);
 
   const handleAddImage = async (movieId2) => {
-    console.log(movieId2);
-    console.log(movieId);
-
+    console.log("Adding image for movieId:", movieId2);
+  
     const accessToken = localStorage.getItem("accessToken");
+    // Get userId from localStorage or your auth state management
+    const userId = localStorage.getItem("userId"); // Add this line
+    
     const imageData = {
       movieId: movieId ? movieId : movieId2,
       url: selectedImage?.file_path ? 
-      `https://image.tmdb.org/t/p/w500/${selectedImage.file_path}` : "",
-      aspectratio: selectedImage?.aspect_ratio || "",
-      height: selectedImage?.height || "",
-
+        `https://image.tmdb.org/t/p/w500${selectedImage.file_path}` : "",
+      description: selectedImage?.height ?
+        `Height: ${selectedImage.height}, Aspect Ratio: ${selectedImage.aspect_ratio}` : "" // Added description field
     };
-    console.log(imageData);
+  
+    console.log("Sending image data:", imageData);
+  
     try {
       const response = await axios({
         method: movieId ? "patch" : "post",
@@ -38,17 +41,18 @@ const Form = () => {
         data: imageData,
         headers: {
           Authorization: `Bearer ${accessToken}`,
+          'Content-Type': 'application/json'
         },
       });
       console.log("Photos added successfully:", response.data);
       alert("Photos added successfully!");
-      return true; // Indicate success
+      return true;
     } catch (error) {
-      console.error("Error adding Photos:", error);
+      console.error("Error adding Photos:", error.response?.data || error.message);
       alert("Failed to add Photos. Please try again.");
-      return false; // Indicate failure
+      return false;
     }
-  }
+  };
 
   const handleAddVideo = async (movieId2) => {
     console.log(movieId2);
@@ -138,13 +142,25 @@ const Form = () => {
           headers: {
             Authorization:
               "Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI5YTdiNmUyNGJkNWRkNjhiNmE1ZWFjZjgyNWY3NGY5ZCIsIm5iZiI6MTcyOTI5NzI5Ny4wNzMzNTEsInN1YiI6IjY2MzhlZGM0MmZhZjRkMDEzMGM2NzM3NyIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.ZIX4EF2yAKl6NwhcmhZucxSQi1rJDZiGG80tDd6_9XI",
+            Accept: "application/json",
           },
         }
       )
       .then((response) => {
-        const imageResults = response.data.results;
+        // Log the entire response to see the structure
+        console.log("Full Image Response:", response.data);
+        
+        // Log the backdrops specifically
+        console.log("Backdrops:", response.data.backdrops);
+        
+        // Check if backdrops exist and log their content
+        if (response.data.backdrops && response.data.backdrops.length > 0) {
+          console.log("First Backdrop Details:", response.data.backdrops[0]);
+        }
+  
+        const imageResults = response.data.backdrops;
         setImages(imageResults.length > 0 ? imageResults : "");
-        console.log("Images from TMDB:", imageResults);
+        console.log("Images set to state:", imageResults);
       })
       .catch((error) => {
         console.error("Error fetching Images:", error);
@@ -155,8 +171,41 @@ const Form = () => {
 
   const handleSelectMovie = (movie) => {
     setSelectedMovie(movie);
-    fetchVideos(movie.id)
-    fetchImages(movie.id); // Fetch videos for the selected movie
+    
+    // Fetch both videos and images
+    Promise.all([
+      axios.get(
+        `https://api.themoviedb.org/3/movie/${movie.id}/videos?language=en-US`,
+        {
+          headers: {
+            Authorization:
+              "Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI5YTdiNmUyNGJkNWRkNjhiNmE1ZWFjZjgyNWY3NGY5ZCIsIm5iZiI6MTcyOTI5NzI5Ny4wNzMzNTEsInN1YiI6IjY2MzhlZGM0MmZhZjRkMDEzMGM2NzM3NyIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.ZIX4EF2yAKl6NwhcmhZucxSQi1rJDZiGG80tDd6_9XI",
+          },
+        }
+      ),
+      axios.get(
+        `https://api.themoviedb.org/3/movie/${movie.id}/images`,
+        {
+          headers: {
+            Authorization:
+              "Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI5YTdiNmUyNGJkNWRkNjhiNmE1ZWFjZjgyNWY3NGY5ZCIsIm5iZiI6MTcyOTI5NzI5Ny4wNzMzNTEsInN1YiI6IjY2MzhlZGM0MmZhZjRkMDEzMGM2NzM3NyIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.ZIX4EF2yAKl6NwhcmhZucxSQi1rJDZiGG80tDd6_9XI",
+          },
+        }
+      )
+    ])
+    .then(([videoResponse, imageResponse]) => {
+      const videoResults = videoResponse.data.results;
+      setVideos(videoResults.length > 0 ? videoResults : "");
+      console.log("Videos from TMDB:", videoResults);
+  
+      const backdrops = imageResponse.data.backdrops || [];
+      const imageResults = [...backdrops];
+      setImages(imageResults.length > 0 ? imageResults : "");
+      console.log("Images from TMDB:", imageResults);
+    })
+    .catch(error => {
+      console.error("Error fetching movie data:", error);
+    });
   };
 
   const handleSave = async () => {
@@ -227,6 +276,33 @@ const Form = () => {
     }
   };
 
+  // useEffect(() => {
+  //   if (movieId) {
+  //     // Fetch movie details from your server
+  //     axios
+  //       .get(`/movies/${movieId}`)
+  //       .then((response) => {
+  //         setMovie(response.data);
+  //         const tempData = {
+  //           id: response.data.tmdbId,
+  //           original_title: response.data.title,
+  //           overview: response.data.overview,
+  //           popularity: response.data.popularity,
+  //           poster_path: response.data.posterPath,
+  //           release_date: response.data.releaseDate,
+  //           vote_average: response.data.voteAverage,
+  //         };
+  //         setSelectedMovie(tempData);
+  //         console.log(response.data);
+
+  //         // Fetch videos from TMDB using the TMDB ID
+  //         return response.data.tmdbId;
+  //       })
+  //       .then(fetchVideos, fetchImages) // Use the reusable function here
+  //       .catch((error) => console.log(error));
+  //   }
+  // }, [movieId]);
+
   useEffect(() => {
     if (movieId) {
       // Fetch movie details from your server
@@ -245,11 +321,51 @@ const Form = () => {
           };
           setSelectedMovie(tempData);
           console.log(response.data);
-
+  
           // Fetch videos from TMDB using the TMDB ID
-          return response.data.tmdbId;
+          const tmdbId = response.data.tmdbId;
+          
+          // Parallel fetching of videos and images
+          return Promise.all([
+            axios.get(
+              `https://api.themoviedb.org/3/movie/${tmdbId}/videos?language=en-US`,
+              {
+                headers: {
+                  Authorization:
+                    "Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI5YTdiNmUyNGJkNWRkNjhiNmE1ZWFjZjgyNWY3NGY5ZCIsIm5iZiI6MTcyOTI5NzI5Ny4wNzMzNTEsInN1YiI6IjY2MzhlZGM0MmZhZjRkMDEzMGM2NzM3NyIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.ZIX4EF2yAKl6NwhcmhZucxSQi1rJDZiGG80tDd6_9XI",
+                },
+              }
+            ),
+            axios.get(
+              `https://api.themoviedb.org/3/movie/${tmdbId}/images`,
+              {
+                headers: {
+                  Accept: "application/json",
+                  Authorization:
+                    "Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI5YTdiNmUyNWRkNjhiNmE1ZWFjZjgyNWY3NGY5ZCIsIm5iZiI6MTcyOTI5NzI5Ny4wNzMzNTEsInN1YiI6IjY2MzhlZGM0MmZhZjRkMDEzMGM2NzM3NyIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.ZIX4EF2yAKl6NwhcmhZucxSQi1rJDZiGG80tDd6_9XI",
+                },
+              }
+            )
+          ]);
         })
-        .then(fetchVideos, fetchImages) // Use the reusable function here
+        .then(([videoResponse, imageResponse]) => {
+          // Process videos
+          const videoResults = videoResponse.data.results;
+          setVideos(videoResults.length > 0 ? videoResults : "");
+          console.log("Videos from TMDB:", videoResults);
+  
+          // Process images
+          console.log("Full Image API Response:", imageResponse.data);
+          
+          const backdrops = imageResponse.data.backdrops || [];
+          const posters = imageResponse.data.posters || [];
+          
+          const imageResults = [...backdrops, ...posters];
+          
+          console.log("Image Results:", imageResults);
+          
+          setImages(imageResults.length > 0 ? imageResults : "");
+        })
         .catch((error) => console.log(error));
     }
   }, [movieId]);
@@ -406,6 +522,36 @@ const Form = () => {
           )}
         </div>
       </div>
+      <h2>Photos</h2>
+<div className="imagesMainCont">
+  {selectedMovie ? (
+    images && images.length > 0 ? (
+      images.map((image) => (
+        <div className="imagesCont" key={image.file_path}>
+          <div className="image-preview">
+            <img
+              src={`https://image.tmdb.org/t/p/w500/${image.file_path}`}
+              alt="Movie Scene"
+              width="200"
+            />
+          </div>
+          <button
+            onClick={() => {
+              setSelectedImage(image);
+              alert("Successfully selected an image!");
+            }}
+          >
+            Select Image
+          </button>
+        </div>
+      ))
+    ) : (
+      <p>No images found for this movie</p>
+    )
+  ) : (
+    <p>Select a movie to view available images</p>
+  )}
+</div>
 
       {<h1>"KAYO NALANG BAHALA MAGLAGAY SA OUTLET"</h1>}
 
@@ -433,31 +579,36 @@ const Form = () => {
                   navigate(`/main/movies/form/${movieId}/photos`);
                 }}
               >
-                <h2>Images</h2>
+{/* <h2>Photos</h2>
 <div className="imagesMainCont">
-  {images && images.length > 0 ? (
-    images.map((image) => (
-      <div className="imagesCont" key={image.file_path}>
-        <img
-          className="image-preview"
-          src={`https://image.tmdb.org/t/p/original/${image.file_path}`}
-          alt="Movie Scene"
-          width="200"
-        />
-        <button
-          onClick={() => {
-            setSelectedImage(image);
-            alert("Successfully selected an image!");
-          }}
-        >
-          Select Image
-        </button>
-      </div>
-    ))
+  {selectedMovie ? (
+    images && images.length > 0 ? (
+      images.map((image) => (
+        <div className="imagesCont" key={image.file_path}>
+          <div className="image-preview">
+            <img
+              src={`https://image.tmdb.org/t/p/w500/${image.file_path}`}
+              alt="Movie Scene"
+              width="200"
+            />
+          </div>
+          <button
+            onClick={() => {
+              setSelectedImage(image);
+              alert("Successfully selected an image!");
+            }}
+          >
+            Select Image
+          </button>
+        </div>
+      ))
+    ) : (
+      <p>No images found for this movie</p>
+    )
   ) : (
-    <p>No images found</p>
+    <p>Select a movie to view available images</p>
   )}
-</div>
+</div> */}
               </li>
             </ul>
           </nav>
