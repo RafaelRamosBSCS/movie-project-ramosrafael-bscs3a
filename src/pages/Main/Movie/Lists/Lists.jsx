@@ -46,15 +46,25 @@ const Lists = () => {
                   },
                 })
                 .then(() => {
-                  // Update the list after all deletions
-                  const tempLists = [...lists];
-                  const index = lists.findIndex((movie) => movie.id === id);
-                  if (index !== undefined || index !== -1) {
-                    tempLists.splice(index, 1);
-                    setLists(tempLists);
-                  }
-                  // Alternatively, refresh the list from API
-                  // getMovies();
+                  // Delete from /casts/:id
+                  axios
+                    .delete(`/casts/${id}`, {
+                      headers: {
+                        Authorization: `Bearer ${accessToken}`,
+                      },
+                    })
+                    .then(() => {
+                      // Update the list after all deletions
+                      const tempLists = [...lists];
+                      const index = lists.findIndex((movie) => movie.id === id);
+                      if (index !== undefined || index !== -1) {
+                        tempLists.splice(index, 1);
+                        setLists(tempLists);
+                      }
+                    })
+                    .catch((error) => {
+                      console.error("Error deleting casts:", error);
+                    });
                 })
                 .catch((error) => {
                   console.error("Error deleting photos:", error);

@@ -36,13 +36,13 @@ function View() {
         <>
           <div>
             <div className="poster-image" >
-            <img
+              <img
                 src={movie.posterPath}
                 alt={movie?.title || "Movie Poster"}
-              style={{
-                width: "200px",
-                height: "auto", 
-              }}
+                style={{
+                  width: "200px",
+                  height: "auto", 
+                }}
               />
             </div>
             <div className='banner'>
@@ -55,41 +55,65 @@ function View() {
               <MovieGenres movieId={movie.tmdbId} />
             </div>
           </div>
-          {movie.casts && movie.casts.length && (
-            <div>
-              <h1>Cast & Crew</h1>
-              <ul className="cast-list">
-                {movie.casts.map((cast, index) => (
-                  <li key={index}>{cast.name}</li>
+
+          {/* Videos Section */}
+          {movie.videos && movie.videos.length > 0 && (
+            <div className="videos-section">
+              <h2>Videos</h2>
+              <div className="video-grid">
+                {movie.videos.map((video, index) => (
+                  <div key={index} className="video-card">
+                    <iframe
+                      width="560"
+                      height="315"
+                      src={video.url}
+                      title={video.name}
+                      frameBorder="0"
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                      allowFullScreen
+                    ></iframe>
+                    <h4>{video.name}</h4>
+                  </div>
                 ))}
-              </ul>
+              </div>
             </div>
           )}
-
-          {movie.videos && movie.videos.length && (
-            <div>
-              <h1>Videos</h1>
-              {movie.videos && movie.videos[0] ? (
-            <div className="video-preview">
-              {/* Assuming the video.key is the unique identifier for a YouTube video */}
-              <iframe
-                width="560"
-                height="315"
-                src={`https://www.youtube.com/embed/${movie.videos[0]?.videoKey}`}
-                title={movie.videos[0]?.name}
-                frameBorder="0"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                allowFullScreen
-              ></iframe>
-            </div>
-          ) : null}
+          {/* Cast & Crew Section */}
+          {movie.casts && movie.casts.length > 0 && (
+            <div className="cast-section">
+              <h2>Cast & Crew</h2>
+              <div className="cast-grid">
+                {movie.casts.map((cast, index) => (
+                  <div key={index} className="cast-card">
+                    <img
+                      src={cast.url || "https://via.placeholder.com/150x150.png?text=No+Image"}
+                      alt={cast.name}
+                      className="cast-image"
+                    />
+                    <div className="cast-info">
+                      <h4>{cast.name}</h4>
+                      <p>{cast.characterName}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
           )}
-
-          {movie.photos && movie.photos.length && (
-            <div>
-              <h1>Photos</h1>
-              {JSON.stringify(movie.photos)}
+          {/* Photos Section */}
+          {movie.photos && movie.photos.length > 0 && (
+            <div className="photos-section">
+              <h2>Photos</h2>
+              <div className="photo-grid">
+                {movie.photos.map((photo, index) => (
+                  <div key={index} className="photo-card">
+                    <img
+                      src={photo.url}
+                      alt={`Movie Scene ${index + 1}`}
+                      className="movie-photo"
+                    />
+                  </div>
+                ))}
+              </div>
             </div>
           )}
         </>
