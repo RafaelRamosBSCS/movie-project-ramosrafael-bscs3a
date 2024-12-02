@@ -54,13 +54,9 @@ const Lists = () => {
                       },
                     })
                     .then(() => {
-                      // Update the list after all deletions
-                      const tempLists = [...lists];
-                      const index = lists.findIndex((movie) => movie.id === id);
-                      if (index !== undefined || index !== -1) {
-                        tempLists.splice(index, 1);
-                        setLists(tempLists);
-                      }
+                      // After all deletions are complete, refresh the data
+                      getMovies(); // This will fetch fresh data
+                      alert("Movie and all associated content deleted successfully!");
                     })
                     .catch((error) => {
                       console.error("Error deleting casts:", error);
