@@ -26,26 +26,26 @@ function MainClient() {
     <div className='Main'>
       <div className='container'>
         <div className='navigation'>
-          
           <div className="brand">
-            
-            <h1 style={{ color: '#61dafb', margin: 0 }}>MovieApp</h1>
+            <h1>MovieApp</h1>
           </div>
-          
           <ul>
             <li>
               <a onClick={() => navigate('/')}>
-                🎬 Movies
+                
+                <span>Movies</span>
               </a>
             </li>
             <li>
               <a onClick={() => navigate('/categories')}>
-                📂 Categories
+                
+                <span>Categories</span>
               </a>
             </li>
             <li>
               <a onClick={() => navigate('/watchlist')}>
-                🔖 My List
+                
+                <span>My List</span>
               </a>
             </li>
             {accessToken ? (
@@ -57,13 +57,15 @@ function MainClient() {
                     handleLogout();
                   }}
                 >
-                  ⟲ Logout
+                  
+                  <span>Logout</span>
                 </a>
               </li>
             ) : (
               <li className='login'> 
                 <a onClick={() => navigate('/login')}>
-                  👤 Login
+                  
+                  <span>Login</span>
                 </a>
               </li>
             )}
