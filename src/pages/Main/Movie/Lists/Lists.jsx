@@ -101,7 +101,7 @@ const Lists = () => {
           </thead>
           <tbody>
             {lists.map((movie, index) => (
-              <tr>
+              <tr key={index}>
                 <td>{movie.id}</td>
                 <td>{movie.title}</td>
                 <td>
