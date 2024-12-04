@@ -3,7 +3,7 @@ function MovieCards({ movie: movie, onClick }) {
   return (
     <>
       <div className='card' onClick={onClick}>
-        <img src={movie.posterPath} />
+        <img src={movie.backdropPath} />
         <span>{movie.title}</span>
       </div>
     </>

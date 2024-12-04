@@ -16,7 +16,6 @@ const Home = () => {
     topRated: [],
     recent: [],
   });
-
   const getMovies = () => {
     axios
       .get("/movies")
@@ -24,18 +23,21 @@ const Home = () => {
         setMovieList(response.data);
         const random = Math.floor(Math.random() * response.data.length);
         setFeaturedMovie(response.data[random]);
-
-        const sortedByVote = [...response.data].sort(
+  
+        // Sort by popularity (highest to lowest)
+        const sortedByPopularity = [...response.data].sort(
+          (a, b) => b.popularity - a.popularity
+        );
+  
+        // Sort by vote average (highest to lowest)
+        const sortedByVoteAverage = [...response.data].sort(
           (a, b) => b.voteAverage - a.voteAverage
         );
-        const sortedByDate = [...response.data].sort(
-          (a, b) => new Date(b.releaseDate) - new Date(a.releaseDate)
-        );
-
+  
         setCategories({
-          trending: response.data.slice(0, 6),
-          topRated: sortedByVote.slice(0, 6),
-          recent: sortedByDate.slice(0, 6),
+          trending: sortedByPopularity.slice(0, 6), // Top 6 most popular
+          topRated: sortedByVoteAverage.slice(0, 6), // Top 6 highest rated
+          recent: response.data.slice(0, 6), // Keep recent category or remove if not needed
         });
       })
       .catch((e) => console.log(e));
@@ -73,6 +75,7 @@ const Home = () => {
       clearTimeout(fadeTimer);
     };
   }, [movieList]); 
+  
 
   const MovieRow = ({ title, movies }) => (
     <div className="movie-row">
@@ -139,26 +142,27 @@ const Home = () => {
         <div className="hero-section-loader"></div>
       )}
 
-      <div className="content-rows">
-        <MovieRow title="Trending Now" movies={categories.trending} />
-        <MovieRow title="Top Rated" movies={categories.topRated} />
-        <MovieRow title="Recently Added" movies={categories.recent} />
+<div className="content-rows">
+    <MovieRow title="Most Popular" movies={categories.trending} />
+    <MovieRow title="Highest Rated" movies={categories.topRated} />
+    {/* You can remove this row if you don't need the recent category */}
+    <MovieRow title="Recently Added" movies={categories.recent} />
 
-        <h2 className="row-title">All Movies</h2>
-        <div className="list-container">
-          {movieList.map((movie) => (
-            <div key={movie.id}>
-              <MovieCards
-                movie={movie}
-                onClick={() => {
-                  navigate(`/view/${movie.id}`);
-                  setMovie(movie);
-                }}
-              />
-            </div>
-          ))}
+    <h2 className="row-title">All Movies</h2>
+    <div className="list-container">
+      {movieList.map((movie) => (
+        <div key={movie.id}>
+          <MovieCards
+            movie={movie}
+            onClick={() => {
+              navigate(`/view/${movie.id}`);
+              setMovie(movie);
+            }}
+          />
         </div>
-      </div>
+      ))}
+    </div>
+  </div>
     </div>
   );
 };

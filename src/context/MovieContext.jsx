@@ -1,6 +1,11 @@
 import { useContext, createContext, useState, useEffect } from 'react';
 
-const MovieContext = createContext({ list: [], selectedMovie: undefined });
+const MovieContext = createContext({ 
+  movieList: [], 
+  selectedMovie: undefined,
+  accessToken: null,
+  userId: null
+});
 
 function MovieContextProvider({ children }) {
   const [movieList, setMovieList] = useState([]);
@@ -8,8 +13,8 @@ function MovieContextProvider({ children }) {
   const [accessToken, setAccessToken] = useState(null);
   const [userId, setUserId] = useState(null);
 
-  
   useEffect(() => {
+    // Get tokens from localStorage on initial load
     const storedAccessToken = localStorage.getItem("accessToken");
     const storedUserId = localStorage.getItem("userId");
 
@@ -17,12 +22,32 @@ function MovieContextProvider({ children }) {
       setAccessToken(storedAccessToken);
     }
     if (storedUserId) {
-      setUserId(storedUserId);
+      setUserId(parseInt(storedUserId));
     }
   }, []); 
 
+  // Add function to update tokens
+  const updateTokens = (newAccessToken, newUserId) => {
+    setAccessToken(newAccessToken);
+    setUserId(newUserId);
+    localStorage.setItem("accessToken", newAccessToken);
+    localStorage.setItem("userId", newUserId);
+  };
+
   return (
-    <MovieContext.Provider value={{ movieList, setMovieList, movie, setMovie, accessToken, setAccessToken, userId }}>
+    <MovieContext.Provider 
+      value={{ 
+        movieList, 
+        setMovieList, 
+        movie, 
+        setMovie, 
+        accessToken, 
+        setAccessToken, 
+        userId,
+        setUserId,
+        updateTokens 
+      }}
+    >
       {children}
     </MovieContext.Provider>
   );
@@ -31,6 +56,9 @@ function MovieContextProvider({ children }) {
 export default MovieContextProvider;
 
 export const useMovieContext = () => {
-  const data = useContext(MovieContext);
-  return data;
+  const context = useContext(MovieContext);
+  if (!context) {
+    throw new Error('useMovieContext must be used within a MovieContextProvider');
+  }
+  return context;
 };
