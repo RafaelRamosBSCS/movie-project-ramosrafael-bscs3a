@@ -15,7 +15,7 @@
   flex-grow: 1;
   padding: 1rem 2rem;
   overflow-y: auto;
-  margin-left: 240px; 
+  margin-left: 240px;
 }
 
 .Main .container .navigation {
@@ -24,17 +24,25 @@
   top: 0;
   height: 100vh;
   width: 240px;
-  background-color: rgba(0, 0, 0, 0.9);
+  background-color: #15171b;
   z-index: 100;
+  display: flex;
+  flex-direction: column;
 }
 
 .Main .container .navigation ul {
   list-style: none;
-  padding: 20px 0;
+  padding: 0;
   margin: 0;
   display: flex;
   flex-direction: column;
-  height: 100%;
+}
+
+.brand {
+  padding: 24px;
+  color: #61dafb;
+  font-size: 1.5rem;
+  font-weight: bold;
 }
 
 .Main .container .navigation ul li {
@@ -42,16 +50,13 @@
   display: flex;
   align-items: center;
   color: #61dafb;
-  font-weight: 500;
-  transition: background-color 0.2s ease;
 }
 
 .Main .container .navigation ul li a {
   text-decoration: none;
   color: #61dafb;
   font-size: 1.1rem;
-  width: 100%;
-  transition: color 0.2s ease;
+  cursor: pointer;
 }
 
 .Main .container .navigation ul li.active a,
@@ -61,22 +66,11 @@
 
 .Main .container .navigation ul li.active,
 .Main .container .navigation ul li:hover {
-  background: rgba(255, 255, 255, 0.1);
+  background: #353a43;
 }
 
+/* Removed specific positioning for login/logout */
 .Main .container .navigation ul li.logout,
 .Main .container .navigation ul li.login {
-  margin-top: auto;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-/* Add styles for the logo/brand area */
-.Main .container .navigation .brand {
-  padding: 24px;
-  margin-bottom: 20px;
-}
-
-.Main .container .navigation .brand img {
-  max-width: 120px;
-  height: auto;
+  border-top: none;
 }

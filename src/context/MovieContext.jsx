@@ -8,7 +8,7 @@ function MovieContextProvider({ children }) {
   const [accessToken, setAccessToken] = useState(null);
   const [userId, setUserId] = useState(null);
 
-  // Use useEffect to retrieve and set accessToken and userId from localStorage
+  
   useEffect(() => {
     const storedAccessToken = localStorage.getItem("accessToken");
     const storedUserId = localStorage.getItem("userId");

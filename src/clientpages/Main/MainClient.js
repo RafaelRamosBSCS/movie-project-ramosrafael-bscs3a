@@ -1,10 +1,9 @@
 import { useEffect } from 'react';
 import { Outlet, useNavigate } from 'react-router-dom';
-import './Main.css';
-import { useMovieContext } from '../../context/MovieContext';
+import './MainClient.css';
 
 function MainClient() {
-  const { accessToken, userId } = useMovieContext();
+  const accessToken = localStorage.getItem('accessToken');
   const navigate = useNavigate();
 
   const handleLogout = () => {

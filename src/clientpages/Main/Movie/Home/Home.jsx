@@ -46,20 +46,33 @@ const Home = () => {
   }, []);
 
   useEffect(() => {
-    const timer = setTimeout(() => {
+    let fadeTimer;
+    let changeTimer;
+  
+    const changeFeaturedMovie = () => {
+      setIsFading(true);
+  
+      fadeTimer = setTimeout(() => {
+        const random = Math.floor(Math.random() * movieList.length);
+        setFeaturedMovie(movieList[random]);
+        setIsFading(false);
+      }, 1000);
+    };
+  
+    const startLoop = () => {
       if (movieList.length) {
-        setIsFading(true);
-
-        setTimeout(() => {
-          const random = Math.floor(Math.random() * movieList.length);
-          setFeaturedMovie(movieList[random]);
-          setIsFading(false);
-        }, 1000);
+        changeTimer = setInterval(changeFeaturedMovie, 5000);
       }
-    }, 5000);
-
-    return () => clearTimeout(timer);
-  }, [featuredMovie, movieList]);
+    };
+  
+    startLoop();
+  
+    
+    return () => {
+      clearInterval(changeTimer);
+      clearTimeout(fadeTimer);
+    };
+  }, [movieList]); 
 
   const MovieRow = ({ title, movies }) => (
     <div className="movie-row">

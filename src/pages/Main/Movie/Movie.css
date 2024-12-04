@@ -1,0 +1,44 @@
+.movie-page-container {
+    color: white;
+    padding: 0 1rem;
+  }
+  
+  .movie-page-header {
+    margin-bottom: 2rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    padding-bottom: 1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .movie-page-title {
+    font-size: 2.5rem;
+    font-weight: 500;
+    background: linear-gradient(90deg, #61dafb, #a8e6ff);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin: 0;
+  }
+  
+  .movie-content {
+    min-height: calc(100vh - 200px);
+    position: relative;
+    z-index: 1;
+  }
+  
+  
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  .movie-content {
+    animation: fadeIn 0.3s ease-out;
+  }

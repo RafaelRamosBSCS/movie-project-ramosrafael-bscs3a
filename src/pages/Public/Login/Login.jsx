@@ -65,13 +65,13 @@ function Login() {
         return;
   
       } catch (error) {
-        // Continue to next login attempt if this one fails
+        
         console.log(`${attempt.role} login failed`);
         continue;
       }
     }
   
-    // If all login attempts fail
+    
     setError('Invalid credentials');
     setStatus('idle');
   };

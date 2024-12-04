@@ -2,109 +2,126 @@
   width: 100%;
   display: flex;
   flex-direction: column;
+  color: white;
 }
+
 .create-container {
   align-self: flex-end;
   margin: 1rem 0;
 }
-.table-container,
-.movie-lists {
-  width: 100%;
+
+.create-container button {
+  padding: 0.75rem 1.5rem;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: background-color 0.2s ease;
+}
+
+.create-container button:hover {
+  background-color: #388E3C;
 }
 
 .table-container {
-  text-align: center;
-}
-.creditsMainCont {
-  padding: 20px;
-}
-
-.departmentSection {
-  margin-bottom: 30px;
-}
-
-.departmentSection h3 {
-  margin-bottom: 15px;
-  padding-bottom: 5px;
-  border-bottom: 2px solid #eee;
-}
-
-.membersList {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  gap: 20px;
-  padding: 10px;
-}
-
-.memberCard {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 15px;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  background: white;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-  transition: transform 0.2s;
-}
-
-.memberCard:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 4px 8px rgba(0,0,0,0.15);
-}
-
-.profileImage {
-  width: 150px;
-  height: 150px;
-  border-radius: 8px;
-  object-fit: cover;
-  margin-bottom: 10px;
-}
-
-.memberInfo {
-  text-align: center;
-  margin: 10px 0;
-}
-
-.memberInfo h4 {
-  margin: 0;
-  font-size: 1rem;
-  color: #333;
-}
-
-.memberInfo p {
-  margin: 5px 0;
-  font-size: 0.9rem;
-  color: #666;
-}
-
-.memberCard button {
   width: 100%;
-  padding: 8px;
-  background-color: #007bff;
-  color: white;
+  background: rgba(0, 0, 0, 0.5);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.movie-lists {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.movie-lists thead tr {
+  background: rgba(0, 0, 0, 0.3);
+}
+
+.movie-lists th {
+  color: #61dafb;
+  padding: 1rem;
+  text-align: left;
+  font-weight: 500;
+}
+
+.movie-lists tbody tr {
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.movie-lists tbody tr:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.movie-lists td {
+  padding: 1rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.movie-lists tr.selected {
+  background: rgba(97, 218, 251, 0.1);
+}
+
+.action-buttons {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: flex-start;
+}
+
+.action-button {
+  padding: 0.5rem 1rem;
   border: none;
   border-radius: 4px;
   cursor: pointer;
-  transition: background-color 0.2s;
+  font-size: 0.9rem;
+  transition: background-color 0.2s ease;
 }
 
-.memberCard button:hover {
-  background-color: #0056b3;
-}
-
-.addCastButton {
-  display: block;
-  margin: 20px auto;
-  padding: 10px 20px;
-  background-color: #28a745;
+.edit-button {
+  background-color: #2196F3;
   color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 1rem;
 }
 
-.addCastButton:hover {
-  background-color: #218838;
+.edit-button:hover {
+  background-color: #1976D2;
+}
+
+.delete-button {
+  background-color: #F44336;
+  color: white;
+}
+
+.delete-button:hover {
+  background-color: #D32F2F;
+}
+
+
+.action-buttons {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: flex-start;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  pointer-events: none; 
+}
+
+
+.movie-lists tr.selected .action-buttons {
+  opacity: 1;
+  pointer-events: all; 
+}
+
+
+.movie-lists tbody tr {
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+
+.movie-lists tr.selected {
+  background: rgba(97, 218, 251, 0.15);
 }
