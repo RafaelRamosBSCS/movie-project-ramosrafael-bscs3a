@@ -2,60 +2,81 @@
   display: flex;
   overflow: hidden;
   max-height: 100vh;
+  background-color: #111;
 }
+
 .Main .container {
   display: flex;
-  flex-direction: column;
   width: 100vw;
   height: 100vh;
 }
+
 .Main .container .outlet {
-  flex-grow: 3;
-  padding: 1rem;
+  flex-grow: 1;
+  padding: 1rem 2rem;
   overflow-y: auto;
+  margin-left: 240px; 
 }
+
 .Main .container .navigation {
-  height: 80px;
-  background-color: #15171b;
-  width: 100%;
+  position: fixed;
+  left: 0;
+  top: 0;
+  height: 100vh;
+  width: 240px;
+  background-color: rgba(0, 0, 0, 0.9);
+  z-index: 100;
 }
+
 .Main .container .navigation ul {
   list-style: none;
-  overflow: hidden;
-  padding: 0;
+  padding: 20px 0;
   margin: 0;
   display: flex;
+  flex-direction: column;
+  height: 100%;
 }
 
 .Main .container .navigation ul li {
-  padding: 0px 60px;
-  height: 80px;
+  padding: 16px 24px;
   display: flex;
-  flex-direction: column;
-  justify-content: center;
   align-items: center;
   color: #61dafb;
-  font-weight: bold;
+  font-weight: 500;
+  transition: background-color 0.2s ease;
 }
+
 .Main .container .navigation ul li a {
   text-decoration: none;
   color: #61dafb;
+  font-size: 1.1rem;
+  width: 100%;
+  transition: color 0.2s ease;
 }
+
 .Main .container .navigation ul li.active a,
 .Main .container .navigation ul li:hover a {
-  text-decoration: none;
   color: white;
 }
+
 .Main .container .navigation ul li.active,
 .Main .container .navigation ul li:hover {
-  background: #353a43;
-}
-.Main .container .navigation ul li a {
-  text-decoration: none;
+  background: rgba(255, 255, 255, 0.1);
 }
 
 .Main .container .navigation ul li.logout,
 .Main .container .navigation ul li.login {
-  cursor: pointer;
-  justify-self: end;
+  margin-top: auto;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Add styles for the logo/brand area */
+.Main .container .navigation .brand {
+  padding: 24px;
+  margin-bottom: 20px;
+}
+
+.Main .container .navigation .brand img {
+  max-width: 120px;
+  height: auto;
 }

@@ -45,44 +45,44 @@ nav li {
 }
 
 .photosMainCont {
-  background-color: gray; /* Match the background color of the videos section */
-  overflow: auto; /* Allow scrolling if content overflows */
+  background-color: gray; 
+  overflow: auto; 
 }
 
 .photosCont {
-  background-color: rgb(196, 196, 196); /* Match the container color of videos */
+  background-color: rgb(196, 196, 196); 
   margin: 10px;
   padding: 10px;
-  display: inline-block; /* Ensure photo containers are inline */
-  border-radius: 8px; /* Add slight rounding for better aesthetics */
+  display: inline-block; 
+  border-radius: 8px; 
 }
 
 .photo-preview {
-  width: 150px; /* Set the width of the photo preview */
-  height: auto; /* Maintain aspect ratio */
-  display: block; /* Ensure the image is displayed as a block */
-  margin-bottom: 10px; /* Space between the image and description */
+  width: 150px; 
+  height: auto; 
+  display: block; 
+  margin-bottom: 10px; 
 }
 
 .photosCont p {
-  text-align: center; /* Center-align the description */
-  font-size: 14px; /* Adjust font size */
-  color: black; /* Ensure readability */
+  text-align: center; 
+  font-size: 14px; 
+  color: black; 
 }
 
 .photosCont button {
-  display: block; /* Ensure the button takes up full width */
-  margin: 10px auto; /* Center-align the button */
-  padding: 5px 10px; /* Add padding for better aesthetics */
-  background-color: lightblue; /* Highlight button color */
-  border: none; /* Remove border for a clean look */
-  border-radius: 4px; /* Add slight rounding */
-  cursor: pointer; /* Change cursor to pointer on hover */
+  display: block; 
+  margin: 10px auto; 
+  padding: 5px 10px; 
+  background-color: lightblue; 
+  border: none; 
+  border-radius: 4px; 
+  cursor: pointer; 
 }
 
 .photosCont button:hover {
-  background-color: darkblue; /* Darken color on hover */
-  color: white; /* Change text color to white */
+  background-color: darkblue; 
+  color: white; 
 }
 
 .imagesMainCont {
@@ -159,3 +159,30 @@ nav li {
   padding-left: 1rem;
   color: #495057;
 }
+  .button-container {
+    margin-top: 20px;
+    display: flex;
+    gap: 10px;
+  }
+  
+  .save-button {
+    padding: 10px 20px;
+    border-radius: 4px;
+    border: none;
+    cursor: pointer;
+    background-color: #007bff;
+    color: white;
+    font-weight: 500;
+  }
+  
+  .save-button:hover {
+    background-color: #0056b3;
+  }
+  
+  .text-save {
+    background-color: #6c757d;
+  }
+  
+  .text-save:hover {
+    background-color: #545b62;
+  }

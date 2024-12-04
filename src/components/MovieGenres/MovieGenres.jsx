@@ -38,7 +38,7 @@ const MovieGenres = ({ movieId }) => {
     return <div>{error}</div>;
   }
 
-  // Join genres with commas, and use the `join()` method to handle commas
+
   const genreList = genres.map((genre) => genre.name).join(", ");
 
   return (

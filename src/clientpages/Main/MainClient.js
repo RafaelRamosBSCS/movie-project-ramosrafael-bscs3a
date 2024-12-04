@@ -1,23 +1,16 @@
 import { useEffect } from 'react';
 import { Outlet, useNavigate } from 'react-router-dom';
 import './Main.css';
+import { useMovieContext } from '../../context/MovieContext';
 
 function MainClient() {
-  const accessToken = localStorage.getItem('accessToken');
+  const { accessToken, userId } = useMovieContext();
   const navigate = useNavigate();
 
   const handleLogout = () => {
     try {
-      // Optional: Call backend logout endpoint if needed
-      // axios.post('/logout', {}, {
-      //   headers: { Authorization: `Bearer ${accessToken}` }
-      // });
-
-      // Remove tokens
       localStorage.removeItem('accessToken');
       localStorage.removeItem('userRole');
-
-      // Navigate to login page
       navigate('/login');
     } catch (error) {
       console.error('Logout failed', error);
@@ -25,7 +18,6 @@ function MainClient() {
   };
 
   useEffect(() => {
-    // Check if token exists, if not redirect to login
     if (!accessToken) {
       navigate('/');
     }
@@ -35,25 +27,45 @@ function MainClient() {
     <div className='Main'>
       <div className='container'>
         <div className='navigation'>
+          
+          <div className="brand">
+            
+            <h1 style={{ color: '#61dafb', margin: 0 }}>MovieApp</h1>
+          </div>
+          
           <ul>
             <li>
-              <a onClick={() => navigate('/')}>Movies</a>
+              <a onClick={() => navigate('/')}>
+                🎬 Movies
+              </a>
+            </li>
+            <li>
+              <a onClick={() => navigate('/categories')}>
+                📂 Categories
+              </a>
+            </li>
+            <li>
+              <a onClick={() => navigate('/watchlist')}>
+                🔖 My List
+              </a>
             </li>
             {accessToken ? (
               <li className='logout'>
                 <a 
                   href="#" 
                   onClick={(e) => {
-                    e.preventDefault(); // Prevent default link behavior
+                    e.preventDefault();
                     handleLogout();
                   }}
                 >
-                  Logout
+                  ⟲ Logout
                 </a>
               </li>
             ) : (
               <li className='login'> 
-                <a onClick={() => navigate('/login')}>Login</a>
+                <a onClick={() => navigate('/login')}>
+                  👤 Login
+                </a>
               </li>
             )}
           </ul>

@@ -384,21 +384,60 @@ const Form = () => {
       });
   };
 
+  const handleTextSave = async () => {
+    if (!selectedMovie) {
+      alert("No movie data to save.");
+      return;
+    }
+  
+    const textData = {
+      tmdbId: selectedMovie.id,
+      title: selectedMovie.original_title,
+      overview: selectedMovie.overview,
+      popularity: selectedMovie.popularity,
+      releaseDate: selectedMovie.release_date,
+      voteAverage: selectedMovie.vote_average,
+      backdropPath: selectedMovie.backdrop_path 
+        ? `https://image.tmdb.org/t/p/original${selectedMovie.backdrop_path}`
+        : "",
+      posterPath: selectedMovie.poster_path 
+        ? `https://image.tmdb.org/t/p/original${selectedMovie.poster_path}`
+        : "",
+      isFeatured: 0,
+    };
+  
+    try {
+      const response = await axios({
+        method: "patch",
+        url: `/movies/${movieId}`,
+        data: textData,
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
+  
+      console.log("Text data saved successfully:", response.data);
+      alert("Text changes saved successfully!");
+    } catch (error) {
+      console.error("Error saving text data:", error);
+      alert("Failed to save text changes. Please try again.");
+    }
+  };
   const handleSave = async () => {
     if (videos && videos.length > 0 && (!selectedVideo || !selectedVideo.key)) {
       alert("Videos are available. Please select a video before proceeding.");
       return false;
     }
-
+  
     if (!videos || videos.length <= 0) {
       alert("No videos found. Proceeding with empty video data.");
     }
-
+  
     if (!selectedMovie) {
       alert("Please search and select a movie.");
       return;
     }
-
+  
     const data = {
       tmdbId: selectedMovie.id,
       title: selectedMovie.original_title,
@@ -410,7 +449,7 @@ const Form = () => {
       posterPath: `https://image.tmdb.org/t/p/original${selectedMovie.poster_path}`,
       isFeatured: 0,
     };
-
+  
     try {
       const response = await axios({
         method: movieId ? "patch" : "post",
@@ -420,23 +459,24 @@ const Form = () => {
           Authorization: `Bearer ${accessToken}`,
         },
       });
-
+  
       const newMovieId = movieId || response.data.id;
       console.log("Movie saved successfully:", response.data);
       alert("Movie saved successfully!");
-
+  
       const isVideoAdded = await handleAddVideo(newMovieId);
       if (!isVideoAdded) {
         alert("Video could not be added. Please try again.");
         return;
       }
-
+  
       const isImageAdded = await handleAddImage(newMovieId);
       if (!isImageAdded) {
         alert("Image could not be added. Please try again.");
         return;
       }
-
+  
+      
       if (!movieId && !isCastAdded) {
         const isCastsAdded = await handleAddCast(newMovieId);
         if (!isCastsAdded) {
@@ -444,7 +484,7 @@ const Form = () => {
           return;
         }
       }
-
+  
       navigate(`/main/movies`);
     } catch (error) {
       console.error("Error saving movie:", error);
@@ -669,82 +709,113 @@ const Form = () => {
               }
             />
           </div>
-          <button type="button" onClick={handleSave}>
-            Save
+          <h2>When Creating a Movie, Casts will be automatically added</h2>
+          <div className="button-container">
+      {movieId ? (
+        // Edit mode - show both buttons
+        <>
+          <button 
+            type="button" 
+            onClick={handleTextSave}
+            className="save-button text-save"
+          >
+            Save Text Only
           </button>
+          <button 
+            type="button" 
+            onClick={handleSave}
+            className="save-button complete-save"
+          >
+            Update Video/Photo
+          </button>
+        </>
+      ) : (
+        // Create mode - show only the complete save button
+        <button 
+          type="button" 
+          onClick={handleSave}
+          className="save-button"
+        >
+          Save
+        </button>
+      )}
+    </div>
         </form>
-        <h2>Videos</h2>
-        <div className="videoSection">
-          {/* Existing Videos (when editing) */}
-          {movieId && existingVideos.length > 0 && (
-            <div className="existingVideos">
-              <h3>Current Videos</h3>
-              <div className="videosMainCont">
-                {existingVideos.map((video) => (
-                  <div className="videosCont" key={video.id}>
-                    <p>{video.name}</p>
-                    <div className="videolist">
-                      <div className="video-preview">
-                        <iframe
-                          width="280"
-                          height="158"
-                          src={video.url}
-                          title={video.name}
-                          frameBorder="0"
-                          allowFullScreen
-                        ></iframe>
-                      </div>
-                      <button onClick={() => handleDeleteVideo(movieId)}>
-                        Delete Video
-                      </button>
-                    </div>
-                  </div>
-                ))}
+{/* For the Videos Section */}
+<h2>Videos</h2>
+<div className="videoSection">
+  {/* Existing Videos (when editing) */}
+  {movieId && existingVideos.length > 0 && (
+    <div className="existingVideos">
+      <h3>Current Videos</h3>
+      <div className="videosMainCont">
+        {existingVideos.map((video) => (
+          <div className="videosCont" key={video.id}>
+            <p>{video.name}</p>
+            <div className="videolist">
+              <div className="video-preview">
+                <iframe
+                  width="280"
+                  height="158"
+                  src={video.url}
+                  title={video.name}
+                  frameBorder="0"
+                  allowFullScreen
+                ></iframe>
               </div>
+              <button onClick={() => handleDeleteVideo(movieId)}>
+                Delete Video
+              </button>
             </div>
-          )}
-          <h3>{movieId ? "Add New Video" : "Select Video"}</h3>
-          <div className="videosMainCont">
-            {videos && videos.length > 0 ? (
-              videos.map((video) => (
-                <div className="videosCont" key={video.id}>
-                  <p>{video.name}</p>
-                  <div className="videolist">
-                    <div className="video-preview">
-                      <iframe
-                        width="280"
-                        height="158"
-                        src={`https://www.youtube.com/embed/${video.key}`}
-                        title={video.name}
-                        frameBorder="0"
-                        allowFullScreen
-                      ></iframe>
-                    </div>
-                    <button
-                      onClick={() => {
-                        setSelectedVideo(video);
-                        alert("Successfully selected a video!");
-                      }}
-                    >
-                      Select Video
-                    </button>
-                  </div>
-                </div>
-              ))
-            ) : (
-              <p>No videos found</p>
-            )}
           </div>
+        ))}
+      </div>
+    </div>
+  )}
 
-          {selectedVideo && (
+  <h3>{movieId ? "Add New Video" : "Available Videos"}</h3>
+  <div className="videosMainCont">
+    {videos && videos.length > 0 ? (
+      videos.map((video) => (
+        <div className="videosCont" key={video.id}>
+          <p>{video.name}</p>
+          <div className="videolist">
+            <div className="video-preview">
+              <iframe
+                width="280"
+                height="158"
+                src={`https://www.youtube.com/embed/${video.key}`}
+                title={video.name}
+                frameBorder="0"
+                allowFullScreen
+              ></iframe>
+            </div>
             <button
-              onClick={() => handleAddVideo2Edit(movieId)}
-              className="addVideoButton"
+              onClick={() => {
+                setSelectedVideo(video);
+                alert("Successfully selected a video!");
+              }}
             >
-              Add Selected Video
+              Select Video
             </button>
-          )}
+          </div>
         </div>
+      ))
+    ) : (
+      <p>No videos found</p>
+    )}
+  </div>
+
+  {/* Only show Add Selected Video button in edit mode */}
+  {movieId && selectedVideo && (
+    <button
+      onClick={() => handleAddVideo2Edit(movieId)}
+      className="addVideoButton"
+    >
+      Add Selected Video
+    </button>
+  )}
+</div>
       </div>
       <h2>Photos</h2>
 <div className="photoSection">
@@ -770,7 +841,8 @@ const Form = () => {
       </div>
     </div>
   )}
-  <h3>{movieId ? 'Add New Photo' : 'Select Photo'}</h3>
+
+  <h3>{movieId ? 'Add New Photo' : 'Available Photos'}</h3>
   <div className="imagesMainCont">
     {selectedMovie ? (
       images && images.length > 0 ? (
@@ -801,7 +873,8 @@ const Form = () => {
     )}
   </div>
 
-  {selectedImage && (
+  {/* Only show Add Selected Photo button in edit mode */}
+  {movieId && selectedImage && (
     <button onClick={() => handleAddImage2Edit(movieId)} className="addPhotoButton">
       Add Selected Photo
     </button>
