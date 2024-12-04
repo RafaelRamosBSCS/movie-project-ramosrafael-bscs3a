@@ -18,22 +18,22 @@ const MovieRowComponent = ({ title, movies, navigate, setMovie }) => {
   useEffect(() => {
     const slider = sliderRef.current;
     if (slider) {
-      slider.addEventListener('scroll', handleScroll);
+      slider.addEventListener("scroll", handleScroll);
       slider.scrollLeft = scrollPosRef.current;
     }
     return () => {
       if (slider) {
-        slider.removeEventListener('scroll', handleScroll);
+        slider.removeEventListener("scroll", handleScroll);
       }
     };
   }, [movies]);
 
   const scroll = (direction) => {
     if (sliderRef.current) {
-      const scrollAmount = 300 * (direction === 'left' ? -1 : 1);
+      const scrollAmount = 300 * (direction === "left" ? -1 : 1);
       sliderRef.current.scrollBy({
         left: scrollAmount,
-        behavior: 'smooth'
+        behavior: "smooth",
       });
     }
   };
@@ -43,25 +43,22 @@ const MovieRowComponent = ({ title, movies, navigate, setMovie }) => {
       <div className="row-header">
         <h2 className="row-title">{title}</h2>
         <div className="row-navigation">
-          <button 
-            className="slider-nav-button prev-button" 
-            onClick={() => scroll('left')}
+          <button
+            className="slider-nav-button prev-button"
+            onClick={() => scroll("left")}
           >
             ←
           </button>
-          <button 
-            className="slider-nav-button next-button" 
-            onClick={() => scroll('right')}
+          <button
+            className="slider-nav-button next-button"
+            onClick={() => scroll("right")}
           >
             →
           </button>
         </div>
       </div>
       <div className="movie-slider-container">
-        <div 
-          className="movie-slider" 
-          ref={sliderRef}
-        >
+        <div className="movie-slider" ref={sliderRef}>
           {movies.map((movie) => (
             <div key={movie.id}>
               <MovieCards
@@ -82,7 +79,7 @@ const MovieRowComponent = ({ title, movies, navigate, setMovie }) => {
 const Home = () => {
   const { accessToken, userId } = useMovieContext();
   const navigate = useNavigate();
-  
+
   const [featuredMovie, setFeaturedMovie] = useState(null);
   const [isFading, setIsFading] = useState(false);
   const { movieList, setMovieList, setMovie } = useMovieContext();
@@ -123,34 +120,34 @@ const Home = () => {
   useEffect(() => {
     let fadeTimer;
     let changeTimer;
-  
+
     const changeFeaturedMovie = () => {
       setIsFading(true);
-    
+
       fadeTimer = setTimeout(() => {
         let random;
         do {
           random = Math.floor(Math.random() * movieList.length);
         } while (movieList[random].id === featuredMovie?.id);
-    
+
         setFeaturedMovie(movieList[random]);
         setIsFading(false);
       }, 1000);
     };
-  
+
     const startLoop = () => {
       if (movieList.length) {
         changeTimer = setInterval(changeFeaturedMovie, 6000);
       }
     };
-  
+
     startLoop();
-  
+
     return () => {
       clearInterval(changeTimer);
       clearTimeout(fadeTimer);
     };
-  }, [movieList]); 
+  }, [movieList]);
 
   return (
     <div className="streaming-container">
@@ -199,20 +196,20 @@ const Home = () => {
       )}
 
       <div className="content-rows">
-        <MovieRowComponent 
-          title="Most Popular" 
+        <MovieRowComponent
+          title="Most Popular"
           movies={categories.trending}
           navigate={navigate}
           setMovie={setMovie}
         />
-        <MovieRowComponent 
-          title="Highest Rated" 
+        <MovieRowComponent
+          title="Highest Rated"
           movies={categories.topRated}
           navigate={navigate}
           setMovie={setMovie}
         />
-        <MovieRowComponent 
-          title="Recently Added" 
+        <MovieRowComponent
+          title="Recently Added"
           movies={categories.recent}
           navigate={navigate}
           setMovie={setMovie}
