@@ -5,6 +5,7 @@ import "./Form.css";
 
 const Form = () => {
   const [query, setQuery] = useState("");
+  const [isCastAdded, setIsCastAdded] = useState(false);
   const [searchedMovieList, setSearchedMovieList] = useState([]);
   const [selectedMovie, setSelectedMovie] = useState(undefined);
   const [movie, setMovie] = useState(undefined);
@@ -13,34 +14,39 @@ const Form = () => {
   const [newVideoUrl, setNewVideoUrl] = useState(""); // New state for new video URL
   const navigate = useNavigate();
   let { movieId } = useParams();
+  const [existingVideos, setExistingVideos] = useState([]);
+const [existingPhotos, setExistingPhotos] = useState([]);
+const [selectedExistingVideo, setSelectedExistingVideo] = useState(null);
+const [selectedExistingPhoto, setSelectedExistingPhoto] = useState(null);
+const [isReplacing, setIsReplacing] = useState(false);
   const [description, setDescription] = useState("");
   const [selectedVideo, setSelectedVideo] = useState([]);
   const [selectedImage, setSelectedImage] = useState([]);
+  const prepareAllCreditsData = () => {
+    const userId = localStorage.getItem("userId");
+    let allCreditsData = [];
+  
+    // Go through each department in credits state
+    Object.entries(credits).forEach(([department, members]) => {
+      members.forEach(member => {
+        allCreditsData.push({
+          movieId: movieId,
+          userId: userId,
+          name: member.name,
+          url: member.profile_path ? 
+            `https://image.tmdb.org/t/p/w500${member.profile_path}` : "",
+          characterName: member.role || ""  // This will capture both character names and crew jobs
+        });
+      });
+    });
+  
+    return allCreditsData;
+  };
+  
   const [credits, setCredits] = useState({
-    Acting: [],
-    Production: [],
-    Directing: [],
-    Writing: [],
-    Sound: [],
-    Camera: [],
-    "Costume & Make-Up": [],
-    Art: [],
-    "Visual Effects": [],
-    Crew: []  // For any other departments
+    Acting: []
   });
   const [selectedCastMember, setSelectedCastMember] = useState([]);
-
-  
-
-
-
-
-
-
-
-
-
-  
 
   const handleAddImage = async (movieId2) => {
     console.log("Adding image for movieId:", movieId2);
@@ -52,7 +58,7 @@ const Form = () => {
     const imageData = {
       movieId: movieId ? movieId : movieId2,
       url: selectedImage?.file_path ? 
-        `https://image.tmdb.org/t/p/w500${selectedImage.file_path}` : "",
+        `https://image.tmdb.org/t/p/w500${selectedImage.file_path}&language=en-US` : "",
       description: selectedImage?.height ?
         `Height: ${selectedImage.height}, Aspect Ratio: ${selectedImage.aspect_ratio}` : "" // Added description field
     };
@@ -75,6 +81,42 @@ const Form = () => {
     } catch (error) {
       console.error("Error adding Photos:", error.response?.data || error.message);
       alert("Failed to add Photos. Please try again.");
+      return false;
+    }
+  };
+
+  const handleAddImage2Edit = async (movieId2) => {
+    console.log("Adding new image for movieId:", movieId2);
+    const accessToken = localStorage.getItem("accessToken");
+    
+    const imageData = {
+      movieId: movieId ? movieId : movieId2,
+      url: selectedImage?.file_path ? 
+        `https://image.tmdb.org/t/p/w500${selectedImage.file_path}` : "",
+      description: selectedImage?.height ?
+        `Height: ${selectedImage.height}, Aspect Ratio: ${selectedImage.aspect_ratio}` : ""
+    };
+  
+    console.log("Sending image data:", imageData);
+    try {
+      const response = await axios({
+        method: "post",  // Always use POST for new images
+        url: "/photos",  // Always use base endpoint
+        data: imageData,
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          'Content-Type': 'application/json'
+        },
+      });
+      console.log("Photo added successfully:", response.data);
+      alert("Photo added successfully!");
+      if (movieId) {
+        fetchExistingPhotos(); // Refresh the list if editing
+      }
+      return true;
+    } catch (error) {
+      console.error("Error adding photo:", error.response?.data || error.message);
+      alert("Failed to add photo. Please try again.");
       return false;
     }
   };
@@ -117,43 +159,198 @@ const Form = () => {
       return false; // Indicate failure
     }
   };
-  
-  const handleAddCast = async (movieId2) => {
-    console.log("Adding cast for movieId:", movieId2);
-  
+
+  const handleAddVideo2Edit = async (movieId2) => {
+    console.log("Adding new video for movieId:", movieId2);
     const accessToken = localStorage.getItem("accessToken");
-    const userId = localStorage.getItem("userId");
-    
-    const castData = {
+  
+    const videoData = {
       movieId: movieId ? movieId : movieId2,
-      name: selectedCastMember?.name || "",
-      url: selectedCastMember?.profile_path ? 
-        `https://image.tmdb.org/t/p/w500${selectedCastMember.profile_path}` : "",
-      characterName: selectedCastMember?.character || ""
+      url: selectedVideo?.key
+        ? `https://www.youtube.com/embed/${selectedVideo.key}`
+        : "https://www.youtube.com/embed/not_available",
+      name: selectedVideo?.name || "No video selected",
+      site: selectedVideo?.site || "YouTube",
+      videoKey: selectedVideo?.key || "not_available",
+      videoType: selectedVideo?.type || "placeholder",
+      official: selectedVideo?.official || false,
     };
   
-    console.log("Sending cast data:", castData);
-  
+    console.log("Sending video data:", videoData);
     try {
       const response = await axios({
-        method: movieId ? "patch" : "post",
-        url: movieId ? `/casts/${movieId}` : "/casts",
-        data: castData,
+        method: "post",  // Always use POST for new videos
+        url: "/videos",  // Always use base endpoint
+        data: videoData,
         headers: {
           Authorization: `Bearer ${accessToken}`,
-          'Content-Type': 'application/json'
         },
       });
-      console.log("Cast member added successfully:", response.data);
-      alert("Cast member added successfully!");
+      console.log("Video added successfully:", response.data);
+      alert("Video added successfully!");
+      if (movieId) {
+        fetchExistingVideos(); // Refresh the list if editing
+      }
       return true;
     } catch (error) {
-      console.error("Error adding cast member:", error.response?.data || error.message);
-      alert("Failed to add cast member. Please try again.");
+      console.error("Error adding video:", error);
+      alert("Failed to add video. Please try again.");
       return false;
     }
   };
   
+  const handleAddCast = async (movieId2) => {
+    if (isCastAdded) {
+      console.log("Cast members already added");
+      return false;
+    }
+  
+    console.log("Adding actors for movieId:", movieId2);
+  
+    const accessToken = localStorage.getItem("accessToken");
+    const userId = parseInt(localStorage.getItem("userId")) || 1;
+    const currentMovieId = movieId ? movieId : movieId2;
+  
+    let allPromises = [];
+  
+    // Only process actors without a department field
+    credits.Acting.forEach(member => {
+      if (member.name && !member.department) {
+        const castData = {
+          movieId: parseInt(currentMovieId),
+          userId: userId,
+          name: member.name,
+          url: member.profile_path ? 
+            `https://image.tmdb.org/t/p/w500${member.profile_path}` : 
+            "https://via.placeholder.com/150x150.png?text=No+Image",
+          characterName: member.character || `${member.name} as Cast`
+        };
+  
+        console.log("Preparing cast data:", castData);
+  
+        const promise = axios({
+          method: "post",
+          url: "/casts",
+          data: castData,
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+            'Content-Type': 'application/json'
+          },
+        });
+  
+        allPromises.push(promise);
+      }
+    });
+  
+    if (allPromises.length === 0) {
+      alert("No actors to add");
+      return false;
+    }
+  
+    try {
+      await Promise.all(allPromises);
+      console.log("All actors added successfully");
+      alert("All actors added successfully!");
+      setIsCastAdded(true);
+      return true;
+    } catch (error) {
+      console.error("Error adding actors:", error.response?.data || error.message);
+      alert("Failed to add actors. Please try again.");
+      return false;
+    }
+  };
+
+  const handleCredits = (creditsResponse) => {
+    const { cast = [] } = creditsResponse.data;
+    
+    // Filter for actors only and exclude those with a department field
+    const actors = cast.filter(member => 
+      member.known_for_department === "Acting" && !member.department
+    ).map(member => ({
+      ...member,
+      role: member.character
+    }));
+  
+    setCredits({
+      Acting: actors
+    });
+  };
+
+// Add these functions to handle existing media
+const fetchExistingVideos = async () => {
+  const accessToken = localStorage.getItem("accessToken");
+  try {
+    const response = await axios({
+      method: "get",
+      url: `/videos/movie/${movieId}`, // Adjust endpoint based on your API
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    });
+    console.log("Existing videos:", response.data);
+    setExistingVideos(response.data);
+  } catch (error) {
+    console.error("Error fetching existing videos:", error);
+    setExistingVideos([]);
+  }
+};
+
+const fetchExistingPhotos = async () => {
+  const accessToken = localStorage.getItem("accessToken");
+  try {
+    const response = await axios({
+      method: "get",
+      url: `/photos/movie/${movieId}`, // Adjust endpoint based on your API
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    });
+    console.log("Existing photos:", response.data);
+    setExistingPhotos(response.data);
+  } catch (error) {
+    console.error("Error fetching existing photos:", error);
+    setExistingPhotos([]);
+  }
+};
+
+const handleDeleteVideo = async (videoId) => {
+  const accessToken = localStorage.getItem("accessToken");
+  try {
+    await axios({
+      method: "delete",
+      url: `/videos/${videoId}`,
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    });
+    alert("Video deleted successfully!");
+    fetchExistingVideos(); // Refresh the list
+  } catch (error) {
+    console.error("Error deleting video:", error);
+    alert("Failed to delete video. Please try again.");
+  }
+};
+
+const handleDeletePhoto = async (photoId) => {
+  const accessToken = localStorage.getItem("accessToken");
+  try {
+    await axios({
+      method: "delete",
+      url: `/photos/${photoId}`,
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    });
+    alert("Photo deleted successfully!");
+    fetchExistingPhotos(); // Refresh the list
+  } catch (error) {
+    console.error("Error deleting photo:", error);
+    alert("Failed to delete photo. Please try again.");
+  }
+};
+
+
+
   const convertYear = (date) => {
     return date ? date.split("-")[0] : null;
   };
@@ -165,7 +362,7 @@ const Form = () => {
       headers: {
         Accept: "application/json",
         Authorization:
-          "Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI5YTdiNmUyNGJkNWRkNjhiNmE1ZWFjZjgyNWY3NGY5ZCIsIm5iZiI6MTcyOTI5NzI5Ny4wNzMzNTEsInN1YiI6IjY2MzhlZGM0MmZhZjRkMDEzMGM2NzM3NyIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.ZIX4EF2yAKl6NwhcmhZucxSQi1rJDZiGG80tDd6_9XI",
+          "Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI2ODhiYjc3NjQwOGNhNjM3MWIyMTY3ZmFiNDdlOTQ0YiIsIm5iZiI6MTczMzA1ODcwNi41NDQ5OTk4LCJzdWIiOiI2NzRjNjA5MjM4NjI4MzkyN2RlMDE4N2YiLCJzY29wZXMiOlsiYXBpX3JlYWQiXSwidmVyc2lvbiI6MX0.oYRqyrw4Ltmuo7z_J7ZTtpw1QtWIQoO8DLF2tDDW0-A",
       },
     }).then((response) => {
       setSearchedMovieList(response.data.results);
@@ -180,7 +377,7 @@ const Form = () => {
         {
           headers: {
             Authorization:
-              "Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI5YTdiNmUyNGJkNWRkNjhiNmE1ZWFjZjgyNWY3NGY5ZCIsIm5iZiI6MTcyOTI5NzI5Ny4wNzMzNTEsInN1YiI6IjY2MzhlZGM0MmZhZjRkMDEzMGM2NzM3NyIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.ZIX4EF2yAKl6NwhcmhZucxSQi1rJDZiGG80tDd6_9XI",
+              "Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI2ODhiYjc3NjQwOGNhNjM3MWIyMTY3ZmFiNDdlOTQ0YiIsIm5iZiI6MTczMzA1ODcwNi41NDQ5OTk4LCJzdWIiOiI2NzRjNjA5MjM4NjI4MzkyN2RlMDE4N2YiLCJzY29wZXMiOlsiYXBpX3JlYWQiXSwidmVyc2lvbiI6MX0.oYRqyrw4Ltmuo7z_J7ZTtpw1QtWIQoO8DLF2tDDW0-A",
           },
         }
       )
@@ -202,7 +399,7 @@ const Form = () => {
         {
           headers: {
             Authorization:
-              "Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI5YTdiNmUyNGJkNWRkNjhiNmE1ZWFjZjgyNWY3NGY5ZCIsIm5iZiI6MTcyOTI5NzI5Ny4wNzMzNTEsInN1YiI6IjY2MzhlZGM0MmZhZjRkMDEzMGM2NzM3NyIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.ZIX4EF2yAKl6NwhcmhZucxSQi1rJDZiGG80tDd6_9XI",
+              "Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI2ODhiYjc3NjQwOGNhNjM3MWIyMTY3ZmFiNDdlOTQ0YiIsIm5iZiI6MTczMzA1ODcwNi41NDQ5OTk4LCJzdWIiOiI2NzRjNjA5MjM4NjI4MzkyN2RlMDE4N2YiLCJzY29wZXMiOlsiYXBpX3JlYWQiXSwidmVyc2lvbiI6MX0.oYRqyrw4Ltmuo7z_J7ZTtpw1QtWIQoO8DLF2tDDW0-A",
             Accept: "application/json",
           },
         }
@@ -230,17 +427,15 @@ const Form = () => {
   };
 
 
-const handleSelectMovie = (movie) => {
+  const handleSelectMovie = (movie) => {
     setSelectedMovie(movie);
     
-    // Fetch videos, images, and credits
     Promise.all([
       axios.get(
         `https://api.themoviedb.org/3/movie/${movie.id}/videos?language=en-US`,
         {
           headers: {
-            Authorization:
-              "Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI5YTdiNmUyNGJkNWRkNjhiNmE1ZWFjZjgyNWY3NGY5ZCIsIm5iZiI6MTcyOTI5NzI5Ny4wNzMzNTEsInN1YiI6IjY2MzhlZGM0MmZhZjRkMDEzMGM2NzM3NyIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.ZIX4EF2yAKl6NwhcmhZucxSQi1rJDZiGG80tDd6_9XI",
+            Authorization: "Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI2ODhiYjc3NjQwOGNhNjM3MWIyMTY3ZmFiNDdlOTQ0YiIsIm5iZiI6MTczMzA1ODcwNi41NDQ5OTk4LCJzdWIiOiI2NzRjNjA5MjM4NjI4MzkyN2RlMDE4N2YiLCJzY29wZXMiOlsiYXBpX3JlYWQiXSwidmVyc2lvbiI6MX0.oYRqyrw4Ltmuo7z_J7ZTtpw1QtWIQoO8DLF2tDDW0-A",
           },
         }
       ),
@@ -248,8 +443,7 @@ const handleSelectMovie = (movie) => {
         `https://api.themoviedb.org/3/movie/${movie.id}/images`,
         {
           headers: {
-            Authorization:
-              "Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI5YTdiNmUyNGJkNWRkNjhiNmE1ZWFjZjgyNWY3NGY5ZCIsIm5iZiI6MTcyOTI5NzI5Ny4wNzMzNTEsInN1YiI6IjY2MzhlZGM0MmZhZjRkMDEzMGM2NzM3NyIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.ZIX4EF2yAKl6NwhcmhZucxSQi1rJDZiGG80tDd6_9XI",
+            Authorization: "Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI2ODhiYjc3NjQwOGNhNjM3MWIyMTY3ZmFiNDdlOTQ0YiIsIm5iZiI6MTczMzA1ODcwNi41NDQ5OTk4LCJzdWIiOiI2NzRjNjA5MjM4NjI4MzkyN2RlMDE4N2YiLCJzY29wZXMiOlsiYXBpX3JlYWQiXSwidmVyc2lvbiI6MX0.oYRqyrw4Ltmuo7z_J7ZTtpw1QtWIQoO8DLF2tDDW0-A",
           },
         }
       ),
@@ -257,8 +451,7 @@ const handleSelectMovie = (movie) => {
         `https://api.themoviedb.org/3/movie/${movie.id}/credits`,
         {
           headers: {
-            Authorization:
-              "Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI5YTdiNmUyNGJkNWRkNjhiNmE1ZWFjZjgyNWY3NGY5ZCIsIm5iZiI6MTcyOTI5NzI5Ny4wNzMzNTEsInN1YiI6IjY2MzhlZGM0MmZhZjRkMDEzMGM2NzM3NyIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.ZIX4EF2yAKl6NwhcmhZucxSQi1rJDZiGG80tDd6_9XI",
+            Authorization: "Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI2ODhiYjc3NjQwOGNhNjM3MWIyMTY3ZmFiNDdlOTQ0YiIsIm5iZiI6MTczMzA1ODcwNi41NDQ5OTk4LCJzdWIiOiI2NzRjNjA5MjM4NjI4MzkyN2RlMDE4N2YiLCJzY29wZXMiOlsiYXBpX3JlYWQiXSwidmVyc2lvbiI6MX0.oYRqyrw4Ltmuo7z_J7ZTtpw1QtWIQoO8DLF2tDDW0-A",
           },
         }
       )
@@ -273,55 +466,20 @@ const handleSelectMovie = (movie) => {
       const imageResults = [...backdrops];
       setImages(imageResults.length > 0 ? imageResults : "");
       
-      // Handle credits
-      const { cast = [], crew = [] } = creditsResponse.data;
-      console.log("Credits data:", creditsResponse.data);
+      // Handle credits - now only for actors
+      const { cast = [] } = creditsResponse.data;
       
-      // Organize credits by department
-      const organizedCredits = {
-        Acting: [],
-        Production: [],
-        Directing: [],
-        Writing: [],
-        Sound: [],
-        Camera: [],
-        "Costume & Make-Up": [],
-        Art: [],
-        "Visual Effects": [],
-        Crew: []
-      };
-
-      // Add cast members (mostly actors)
-      cast.forEach(member => {
-        if (organizedCredits[member.known_for_department]) {
-          organizedCredits[member.known_for_department].push({
-            ...member,
-            role: member.character
-          });
-        } else {
-          organizedCredits.Crew.push({
-            ...member,
-            role: member.character
-          });
-        }
+      // Filter for only actors (no crew members in cast)
+      const actors = cast.filter(member => 
+        member.known_for_department === "Acting" && !member.department
+      ).map(member => ({
+        ...member,
+        role: member.character
+      }));
+  
+      setCredits({
+        Acting: actors
       });
-
-      // Add crew members
-      crew.forEach(member => {
-        if (organizedCredits[member.known_for_department]) {
-          organizedCredits[member.known_for_department].push({
-            ...member,
-            role: member.job
-          });
-        } else {
-          organizedCredits.Crew.push({
-            ...member,
-            role: member.job
-          });
-        }
-      });
-
-      setCredits(organizedCredits);
     })
     .catch(error => {
       console.error("Error fetching movie data:", error);
@@ -331,7 +489,7 @@ const handleSelectMovie = (movie) => {
   const handleSave = async () => {
     if (videos && videos.length > 0 && (!selectedVideo || !selectedVideo.key)) {
       alert("Videos are available. Please select a video before proceeding.");
-      return false; // Stop the process
+      return false;
     }
   
     if (!videos || videos.length <= 0) {
@@ -358,7 +516,6 @@ const handleSelectMovie = (movie) => {
     };
   
     try {
-      // Dynamically decide between patch and post
       const response = await axios({
         method: movieId ? "patch" : "post",
         url: movieId ? `/movies/${movieId}` : "/movies",
@@ -368,14 +525,11 @@ const handleSelectMovie = (movie) => {
         },
       });
   
-      // Get the movie ID, either from existing state or the response for a new movie
       const newMovieId = movieId || response.data.id;
-      console.log("safjadsfdsgfdsfhdsbfj", movieId || "sd");
-      console.log("safjadsfdsgfdsfhdsbfj", newMovieId);
       console.log("Movie saved successfully:", response.data);
       alert("Movie saved successfully!");
   
-      // Proceed to add the video
+      // Add video
       const isVideoAdded = await handleAddVideo(newMovieId);
       if (!isVideoAdded) {
         alert("Video could not be added. Please try again.");
@@ -389,16 +543,15 @@ const handleSelectMovie = (movie) => {
         return;
       }
   
-      // Add selected cast member if one is selected
-      if (selectedCastMember) {
-        const isCastAdded = await handleAddCast(newMovieId);
-        if (!isCastAdded) {
-          alert("Cast member could not be added. Please try again.");
+      // Only add casts if this is a new movie (not editing)
+      if (!movieId && !isCastAdded) {
+        const isCastsAdded = await handleAddCast(newMovieId);
+        if (!isCastsAdded) {
+          alert("Cast members could not be added. Please try again.");
           return;
         }
       }
   
-      // Navigate to the movie details page
       navigate(`/main/movies`);
     } catch (error) {
       console.error("Error saving movie:", error);
@@ -407,6 +560,16 @@ const handleSelectMovie = (movie) => {
   };
 
   
+  useEffect(() => {
+    if (movieId) {
+      // Fetch existing videos and photos when editing
+      fetchExistingVideos();
+      fetchExistingPhotos();
+    }
+  }, [movieId]);
+  
+
+
   useEffect(() => {
     if (movieId) {
       axios
@@ -433,7 +596,7 @@ const handleSelectMovie = (movie) => {
               {
                 headers: {
                   Authorization:
-                    "Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI5YTdiNmUyNGJkNWRkNjhiNmE1ZWFjZjgyNWY3NGY5ZCIsIm5iZiI6MTcyOTI5NzI5Ny4wNzMzNTEsInN1YiI6IjY2MzhlZGM0MmZhZjRkMDEzMGM2NzM3NyIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.ZIX4EF2yAKl6NwhcmhZucxSQi1rJDZiGG80tDd6_9XI",
+                    "Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI2ODhiYjc3NjQwOGNhNjM3MWIyMTY3ZmFiNDdlOTQ0YiIsIm5iZiI6MTczMzA1ODcwNi41NDQ5OTk4LCJzdWIiOiI2NzRjNjA5MjM4NjI4MzkyN2RlMDE4N2YiLCJzY29wZXMiOlsiYXBpX3JlYWQiXSwidmVyc2lvbiI6MX0.oYRqyrw4Ltmuo7z_J7ZTtpw1QtWIQoO8DLF2tDDW0-A",
                 },
               }
             ),
@@ -442,7 +605,7 @@ const handleSelectMovie = (movie) => {
               {
                 headers: {
                   Authorization:
-                    "Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI5YTdiNmUyNGJkNWRkNjhiNmE1ZWFjZjgyNWY3NGY5ZCIsIm5iZiI6MTcyOTI5NzI5Ny4wNzMzNTEsInN1YiI6IjY2MzhlZGM0MmZhZjRkMDEzMGM2NzM3NyIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.ZIX4EF2yAKl6NwhcmhZucxSQi1rJDZiGG80tDd6_9XI",
+                    "Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI2ODhiYjc3NjQwOGNhNjM3MWIyMTY3ZmFiNDdlOTQ0YiIsIm5iZiI6MTczMzA1ODcwNi41NDQ5OTk4LCJzdWIiOiI2NzRjNjA5MjM4NjI4MzkyN2RlMDE4N2YiLCJzY29wZXMiOlsiYXBpX3JlYWQiXSwidmVyc2lvbiI6MX0.oYRqyrw4Ltmuo7z_J7ZTtpw1QtWIQoO8DLF2tDDW0-A",
                 },
               }
             ),
@@ -451,7 +614,7 @@ const handleSelectMovie = (movie) => {
               {
                 headers: {
                   Authorization:
-                    "Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI5YTdiNmUyNGJkNWRkNjhiNmE1ZWFjZjgyNWY3NGY5ZCIsIm5iZiI6MTcyOTI5NzI5Ny4wNzMzNTEsInN1YiI6IjY2MzhlZGM0MmZhZjRkMDEzMGM2NzM3NyIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.ZIX4EF2yAKl6NwhcmhZucxSQi1rJDZiGG80tDd6_9XI",
+                    "Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI2ODhiYjc3NjQwOGNhNjM3MWIyMTY3ZmFiNDdlOTQ0YiIsIm5iZiI6MTczMzA1ODcwNi41NDQ5OTk4LCJzdWIiOiI2NzRjNjA5MjM4NjI4MzkyN2RlMDE4N2YiLCJzY29wZXMiOlsiYXBpX3JlYWQiXSwidmVyc2lvbiI6MX0.oYRqyrw4Ltmuo7z_J7ZTtpw1QtWIQoO8DLF2tDDW0-A",
                 },
               }
             )
@@ -518,6 +681,8 @@ const handleSelectMovie = (movie) => {
         .catch((error) => console.log(error));
     }
   }, [movieId]);
+
+  
 
   return (
     <>
@@ -628,122 +793,161 @@ const handleSelectMovie = (movie) => {
             Save
           </button>
         </form>
-
-
         <h2>Videos</h2>
-
-        <div className="videosMainCont">
-          {videos && videos.length > 0 ? (
-            videos.map((video) => (
-              <div className="videosCont" key={video.id}>
-                <p>{video.name}</p>
-                <div className="videolist">
-                  <div className="video-preview">
-                    {/* Assuming the video.key is the unique identifier for a YouTube video */}
-                    <iframe
-                      width="280"
-                      height="158"
-                      src={`https://www.youtube.com/embed/${video.key}`}
-                      title={video.name}
-                      frameBorder="0"
-                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                      allowFullScreen
-                    ></iframe>
-                  </div>
-                  <button
-                    onClick={() => {
-                      setSelectedVideo(video);
-                      alert("Successfully selected a video!");
-                    }}
-                  >
-                    Select Video
-                  </button>
-                </div>
-
-                {/* <div>
-                  <button type="button" onClick={handleAddVideo}>
-                    Add Video
-                  </button>
-                </div> */}
+<div className="videoSection">
+  {/* Existing Videos (when editing) */}
+  {movieId && existingVideos.length > 0 && (
+    <div className="existingVideos">
+      <h3>Current Videos</h3>
+      <div className="videosMainCont">
+        {existingVideos.map((video) => (
+          <div className="videosCont" key={video.id}>
+            <p>{video.name}</p>
+            <div className="videolist">
+              <div className="video-preview">
+                <iframe
+                  width="280"
+                  height="158"
+                  src={video.url}
+                  title={video.name}
+                  frameBorder="0"
+                  allowFullScreen
+                ></iframe>
               </div>
-            ))
-          ) : (
-            <p>No videos found</p>
-          )}
-        </div>
-        
-      </div>
-      <h2>Photos</h2>
-<div className="imagesMainCont">
-  {selectedMovie ? (
-    images && images.length > 0 ? (
-      images.map((image) => (
-        <div className="imagesCont" key={image.file_path}>
-          <div className="image-preview">
-            <img
-              src={`https://image.tmdb.org/t/p/w500/${image.file_path}`}
-              alt="Movie Scene"
-              width="200"
-            />
+              <button onClick={() => handleDeleteVideo(video.id)}>
+                Delete Video
+              </button>
+            </div>
           </div>
-          <button
-            onClick={() => {
-              setSelectedImage(image);
-              alert("Successfully selected an image!");
-            }}
-          >
-            Select Image
-          </button>
+        ))}
+      </div>
+    </div>
+  )}
+
+  {/* Available Videos from TMDB */}
+  <h3>{movieId ? 'Add New Video' : 'Select Video'}</h3>
+  <div className="videosMainCont">
+    {videos && videos.length > 0 ? (
+      videos.map((video) => (
+        <div className="videosCont" key={video.id}>
+          <p>{video.name}</p>
+          <div className="videolist">
+            <div className="video-preview">
+              <iframe
+                width="280"
+                height="158"
+                src={`https://www.youtube.com/embed/${video.key}`}
+                title={video.name}
+                frameBorder="0"
+                allowFullScreen
+              ></iframe>
+            </div>
+            <button
+              onClick={() => {
+                setSelectedVideo(video);
+                alert("Successfully selected a video!");
+              }}
+            >
+              Select Video
+            </button>
+          </div>
         </div>
       ))
     ) : (
-      <p>No images found for this movie</p>
-    )
-  ) : (
-    <p>Select a movie to view available images</p>
+      <p>No videos found</p>
+    )}
+  </div>
+
+  {selectedVideo && (
+    <button onClick={() => handleAddVideo2Edit(movieId)} className="addVideoButton">
+      Add Selected Video
+    </button>
   )}
 </div>
-<div className="creditsMainCont">
-  {Object.entries(credits).map(([department, members]) => (
-    members.length > 0 && (
-      <div key={department} className="departmentSection">
-        <h3>{department}</h3>
-        <div className="membersList">
-          {members.map((member) => (
-            <div 
-              key={member.credit_id} 
-              className="memberCard"
-            >
-              <img
-                className="profileImage"
-                src={member.profile_path 
-                  ? `https://image.tmdb.org/t/p/w185${member.profile_path}`
-                  : "https://via.placeholder.com/150x150.png?text=No+Image"}
-                alt={member.name}
-              />
-              <div className="memberInfo">
-                <h4>{member.name}</h4>
-                <p>{member.role}</p>
-              </div>
-              <button
-                onClick={() => {
-                  setSelectedCastMember(member);
-                  alert("Successfully selected cast member!");
-                }}
-              >
-                Select Cast Member
-              </button>
-            </div>
-          ))}
-        </div>
+        
       </div>
-    )
-  ))}
+      <h2>Photos</h2>
+      <h3>{movieId ? 'Add New Photo' : 'Select Photo'}</h3>
+  <div className="imagesMainCont">
+    {selectedMovie ? (
+      images && images.length > 0 ? (
+        images.map((image) => (
+          <div className="imagesCont" key={image.file_path}>
+            <div className="image-preview">
+              <img
+                src={`https://image.tmdb.org/t/p/w500/${image.file_path}`}
+                alt="Movie Scene"
+                width="200"
+              />
+            </div>
+            <button
+              onClick={() => {
+                setSelectedImage(image);
+                alert("Successfully selected an image!");
+              }}
+            >
+              Select Image
+            </button>
+          </div>
+        ))
+      ) : (
+        <p>No images found for this movie</p>
+      )
+    ) : (
+      <p>Select a movie to view available images</p>
+    )}
+  </div>
+
+  {selectedImage && (
+    <button onClick={() => handleAddImage2Edit(movieId)} className="addPhotoButton">
+      Add Selected Photo
+    </button>
+  )}
+
+<div className="creditsMainCont">
+  {credits.Acting.length > 0 && (
+    <div className="actorsSection">
+      <h3>Actors</h3>
+      <div className="membersList">
+        {credits.Acting.map((actor) => (
+          <div 
+            key={actor.credit_id} 
+            className="memberCard"
+          >
+            <img
+              className="profileImage"
+              src={actor.profile_path 
+                ? `https://image.tmdb.org/t/p/w185${actor.profile_path}`
+                : "https://via.placeholder.com/150x150.png?text=No+Image"}
+              alt={actor.name}
+            />
+            <div className="memberInfo">
+              <h4>{actor.name}</h4>
+              <p>as {actor.character}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  )}
 </div>
 
-{selectedCastMember && (
-  <button onClick={() => handleAddCast(movieId)} className="addCastButton">
-    Add Selected Cast Member
+{credits.Acting.length > 0 && (
+  <button 
+    onClick={() => handleAddCast(selectedMovie?.id)}
+    className="addAllCastsButton"
+    disabled={isCastAdded}
+    style={{
+      padding: '10px 20px',
+      margin: '20px 0',
+      backgroundColor: isCastAdded ? '#cccccc' : '#007bff',
+      color: 'white',
+      border: 'none',
+      borderRadius: '5px',
+      cursor: isCastAdded ? 'not-allowed' : 'pointer'
+    }}
+  >
+    {isCastAdded ? 'Actors Added' : 'Add All Actors'}
   </button>
 )}
       {<h1>"KAYO NALANG BAHALA MAGLAGAY SA OUTLET"</h1>}
