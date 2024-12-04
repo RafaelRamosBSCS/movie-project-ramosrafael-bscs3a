@@ -11,46 +11,20 @@ const Form = () => {
   const [selectedMovie, setSelectedMovie] = useState(undefined);
   const [movie, setMovie] = useState(undefined);
   const [videos, setVideos] = useState([]);
-  const [images, setImages] = useState([]); // New state for videos
-  const [newVideoUrl, setNewVideoUrl] = useState(""); // New state for new video URL
+  const [images, setImages] = useState([]);
   const navigate = useNavigate();
   let { movieId } = useParams();
   const [existingVideos, setExistingVideos] = useState([]);
   const [existingPhotos, setExistingPhotos] = useState([]);
-  const [selectedExistingVideo, setSelectedExistingVideo] = useState(null);
-  const [selectedExistingPhoto, setSelectedExistingPhoto] = useState(null);
-  const [isReplacing, setIsReplacing] = useState(false);
-  const [description, setDescription] = useState("");
   const [selectedVideo, setSelectedVideo] = useState([]);
   const [selectedImage, setSelectedImage] = useState([]);
 
   const { accessToken, userId } = useMovieContext();
 
-  const prepareAllCreditsData = () => {
-    let allCreditsData = [];
-
-    // Go through each department in credits state
-    Object.entries(credits).forEach(([department, members]) => {
-      members.forEach((member) => {
-        allCreditsData.push({
-          movieId: movieId,
-          userId: userId,
-          name: member.name,
-          url: member.profile_path
-            ? `https://image.tmdb.org/t/p/w500${member.profile_path}`
-            : "",
-          characterName: member.role || "", // This will capture both character names and crew jobs
-        });
-      });
-    });
-
-    return allCreditsData;
-  };
 
   const [credits, setCredits] = useState({
     Acting: [],
   });
-  const [selectedCastMember, setSelectedCastMember] = useState([]);
 
   const handleAddImage = async (movieId2) => {
     console.log("Adding image for movieId:", movieId2);
@@ -62,7 +36,7 @@ const Form = () => {
         : "",
       description: selectedImage?.height
         ? `Height: ${selectedImage.height}, Aspect Ratio: ${selectedImage.aspect_ratio}`
-        : "", // Added description field
+        : "",
     };
 
     console.log("Sending image data:", imageData);
@@ -106,8 +80,8 @@ const Form = () => {
     console.log("Sending image data:", imageData);
     try {
       const response = await axios({
-        method: "post", // Always use POST for new images
-        url: "/photos", // Always use base endpoint
+        method: "post", 
+        url: "/photos", 
         data: imageData,
         headers: {
           Authorization: `Bearer ${accessToken}`,
@@ -117,7 +91,7 @@ const Form = () => {
       console.log("Photo added successfully:", response.data);
       alert("Photo added successfully!");
       if (movieId) {
-        fetchExistingPhotos(); // Refresh the list if editing
+        fetchExistingPhotos(); 
       }
       return true;
     } catch (error) {
@@ -134,18 +108,18 @@ const Form = () => {
     console.log(movieId2);
     console.log(movieId);
 
-    // If no videos are found, proceed with empty fields in videoData
+
 
     const videoData = {
-      movieId: movieId ? movieId : movieId2, // Use the dynamically provided movieId
+      movieId: movieId ? movieId : movieId2, 
       url: selectedVideo?.key
         ? `https://www.youtube.com/embed/${selectedVideo.key}`
-        : "https://www.youtube.com/embed/not_available", // Use placeholder URL
-      name: selectedVideo?.name || "No video selected", // Default name if no video selected
-      site: selectedVideo?.site || "YouTube", // Default site as "YouTube"
-      videoKey: selectedVideo?.key || "not_available", // Default key
-      videoType: selectedVideo?.type || "placeholder", // Default type
-      official: selectedVideo?.official || false, // Default to false
+        : "https://www.youtube.com/embed/not_available", 
+      name: selectedVideo?.name || "No video selected", 
+      site: selectedVideo?.site || "YouTube", 
+      videoKey: selectedVideo?.key || "not_available", 
+      videoType: selectedVideo?.type || "placeholder", 
+      official: selectedVideo?.official || false, 
     };
 
     console.log(videoData);
@@ -160,11 +134,11 @@ const Form = () => {
       });
       console.log("Video added successfully:", response.data);
       alert("Video added successfully!");
-      return true; // Indicate success
+      return true; 
     } catch (error) {
       console.error("Error adding video:", error);
       alert("Failed to add video. Please try again.");
-      return false; // Indicate failure
+      return false; 
     }
   };
 
@@ -186,8 +160,8 @@ const Form = () => {
     console.log("Sending video data:", videoData);
     try {
       const response = await axios({
-        method: "post", // Always use POST for new videos
-        url: "/videos", // Always use base endpoint
+        method: "post", 
+        url: "/videos", 
         data: videoData,
         headers: {
           Authorization: `Bearer ${accessToken}`,
@@ -196,7 +170,7 @@ const Form = () => {
       console.log("Video added successfully:", response.data);
       alert("Video added successfully!");
       if (movieId) {
-        fetchExistingVideos(); // Refresh the list if editing
+        fetchExistingVideos(); 
       }
       return true;
     } catch (error) {
@@ -219,7 +193,7 @@ const Form = () => {
 
     let allPromises = [];
 
-    // Only process actors without a department field
+
     credits.Acting.forEach((member) => {
       if (member.name && !member.department) {
         const castData = {
@@ -269,31 +243,12 @@ const Form = () => {
     }
   };
 
-  const handleCredits = (creditsResponse) => {
-    const { cast = [] } = creditsResponse.data;
-
-    // Filter for actors only and exclude those with a department field
-    const actors = cast
-      .filter(
-        (member) =>
-          member.known_for_department === "Acting" && !member.department
-      )
-      .map((member) => ({
-        ...member,
-        role: member.character,
-      }));
-
-    setCredits({
-      Acting: actors,
-    });
-  };
-
-  // Add these functions to handle existing media
+ 
   const fetchExistingVideos = async () => {
     try {
       const response = await axios({
         method: "get",
-        url: `/videos/${movieId}`, // Adjust endpoint based on your API
+        url: `/videos/${movieId}`,
         headers: {
           Authorization: `Bearer ${accessToken}`,
         },
@@ -310,13 +265,14 @@ const Form = () => {
     try {
       const response = await axios({
         method: "get",
-        url: `/photos/${movieId}`, // Adjust endpoint based on your API
+        url: `/photos/${movieId}`,
         headers: {
           Authorization: `Bearer ${accessToken}`,
         },
       });
-      console.log("Existing photos:", response.data);
-      setExistingPhotos(response.data);
+      console.log("Existing photos response:", response.data);
+      const photosArray = Array.isArray(response.data) ? response.data : [response.data];
+      setExistingPhotos(photosArray);
     } catch (error) {
       console.error("Error fetching existing photos:", error);
       setExistingPhotos([]);
@@ -333,7 +289,7 @@ const Form = () => {
         },
       });
       alert("Video deleted successfully!");
-      fetchExistingVideos(); // Refresh the list
+      fetchExistingVideos();
     } catch (error) {
       console.error("Error deleting video:", error);
       alert("Failed to delete video. Please try again.");
@@ -350,16 +306,13 @@ const Form = () => {
         },
       });
       alert("Photo deleted successfully!");
-      fetchExistingPhotos(); // Refresh the list
+      fetchExistingPhotos(); 
     } catch (error) {
       console.error("Error deleting photo:", error);
       alert("Failed to delete photo. Please try again.");
     }
   };
 
-  const convertYear = (date) => {
-    return date ? date.split("-")[0] : null;
-  };
 
   const handleSearch = useCallback(() => {
     axios({
@@ -403,19 +356,15 @@ const Form = () => {
       }),
     ])
       .then(([videoResponse, imageResponse, creditsResponse]) => {
-        // Handle videos
         const videoResults = videoResponse.data.results;
         setVideos(videoResults.length > 0 ? videoResults : "");
 
-        // Handle images
         const backdrops = imageResponse.data.backdrops || [];
         const imageResults = [...backdrops];
         setImages(imageResults.length > 0 ? imageResults : "");
 
-        // Handle credits - now only for actors
         const { cast = [] } = creditsResponse.data;
 
-        // Filter for only actors (no crew members in cast)
         const actors = cast
           .filter(
             (member) =>
@@ -476,21 +425,18 @@ const Form = () => {
       console.log("Movie saved successfully:", response.data);
       alert("Movie saved successfully!");
 
-      // Add video
       const isVideoAdded = await handleAddVideo(newMovieId);
       if (!isVideoAdded) {
         alert("Video could not be added. Please try again.");
         return;
       }
 
-      // Add image
       const isImageAdded = await handleAddImage(newMovieId);
       if (!isImageAdded) {
         alert("Image could not be added. Please try again.");
         return;
       }
 
-      // Only add casts if this is a new movie (not editing)
       if (!movieId && !isCastAdded) {
         const isCastsAdded = await handleAddCast(newMovieId);
         if (!isCastsAdded) {
@@ -508,7 +454,6 @@ const Form = () => {
 
   useEffect(() => {
     if (movieId) {
-      // Fetch existing videos and photos when editing
       fetchExistingVideos();
       fetchExistingPhotos();
     }
@@ -559,40 +504,30 @@ const Form = () => {
           ]);
         })
         .then(([videoResponse, imageResponse, creditsResponse]) => {
-          // Handle videos
           const videoResults = videoResponse.data.results;
-          // Filter videos for only official YouTube trailers or teasers
           const validVideos = videoResults.filter(
             (video) =>
-              video.site === "YouTube" && // Ensure videos are hosted on YouTube
-              (video.type === "Trailer" || video.type === "Teaser") && // Filter for relevant video types
-              video.official // Include only official videos
+              video.site === "YouTube" && 
+              (video.type === "Trailer" || video.type === "Teaser") && 
+              video.official 
           );
 
-          // Set filtered videos or an empty string if none match
+          
           setVideos(validVideos.length > 0 ? validVideos : "");
 
-          // Handle images
+          
           const backdrops = imageResponse.data.backdrops || [];
           const posters = imageResponse.data.posters || [];
           const imageResults = [...backdrops, ...posters];
           setImages(imageResults.length > 0 ? imageResults : "");
 
-          // Handle credits
+         
           const { cast = [], crew = [] } = creditsResponse.data;
 
-          // Organize credits by department
+          
           const organizedCredits = {
             Acting: [],
             Production: [],
-            Directing: [],
-            Writing: [],
-            Sound: [],
-            Camera: [],
-            "Costume & Make-Up": [],
-            Art: [],
-            "Visual Effects": [],
-            Crew: [],
           };
 
           cast.forEach((member) => {
@@ -768,8 +703,6 @@ const Form = () => {
               </div>
             </div>
           )}
-
-          {/* Available Videos from TMDB */}
           <h3>{movieId ? "Add New Video" : "Select Video"}</h3>
           <div className="videosMainCont">
             {videos && videos.length > 0 ? (
@@ -814,45 +747,66 @@ const Form = () => {
         </div>
       </div>
       <h2>Photos</h2>
-      <h3>{movieId ? "Add New Photo" : "Select Photo"}</h3>
+<div className="photoSection">
+  {/* Existing Photos (when editing) */}
+  {movieId && existingPhotos.length > 0 && (
+    <div className="existingPhotos">
+      <h3>Current Photos</h3>
       <div className="imagesMainCont">
-        {selectedMovie ? (
-          images && images.length > 0 ? (
-            images.map((image) => (
-              <div className="imagesCont" key={image.file_path}>
-                <div className="image-preview">
-                  <img
-                    src={`https://image.tmdb.org/t/p/w500/${image.file_path}`}
-                    alt="Movie Scene"
-                    width="200"
-                  />
-                </div>
-                <button
-                  onClick={() => {
-                    setSelectedImage(image);
-                    alert("Successfully selected an image!");
-                  }}
-                >
-                  Select Image
-                </button>
-              </div>
-            ))
-          ) : (
-            <p>No images found for this movie</p>
-          )
-        ) : (
-          <p>Select a movie to view available images</p>
-        )}
+        {existingPhotos.map((photo) => (
+          <div className="imagesCont" key={photo.id}>
+            <div className="image-preview">
+              <img
+                src={photo.url}
+                alt="Movie Scene"
+                width="200"
+              />
+            </div>
+            <button onClick={() => handleDeletePhoto(movieId)}>
+              Delete Photo
+            </button>
+          </div>
+        ))}
       </div>
+    </div>
+  )}
+  <h3>{movieId ? 'Add New Photo' : 'Select Photo'}</h3>
+  <div className="imagesMainCont">
+    {selectedMovie ? (
+      images && images.length > 0 ? (
+        images.map((image) => (
+          <div className="imagesCont" key={image.file_path}>
+            <div className="image-preview">
+              <img
+                src={`https://image.tmdb.org/t/p/w500/${image.file_path}`}
+                alt="Movie Scene"
+                width="200"
+              />
+            </div>
+            <button
+              onClick={() => {
+                setSelectedImage(image);
+                alert("Successfully selected an image!");
+              }}
+            >
+              Select Image
+            </button>
+          </div>
+        ))
+      ) : (
+        <p>No images found for this movie</p>
+      )
+    ) : (
+      <p>Select a movie to view available images</p>
+    )}
+  </div>
 
-      {selectedImage && (
-        <button
-          onClick={() => handleAddImage2Edit(movieId)}
-          className="addPhotoButton"
-        >
-          Add Selected Photo
-        </button>
-      )}
+  {selectedImage && (
+    <button onClick={() => handleAddImage2Edit(movieId)} className="addPhotoButton">
+      Add Selected Photo
+    </button>
+  )}
+</div>
 
       <div className="creditsMainCont">
         {credits.Acting.length > 0 && (
