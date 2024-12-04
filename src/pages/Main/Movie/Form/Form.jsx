@@ -2,6 +2,7 @@ import axios from "axios";
 import { useCallback, useEffect, useState } from "react";
 import { Outlet, useNavigate, useParams } from "react-router-dom";
 import "./Form.css";
+import { useMovieContext } from "../../../../context/MovieContext";
 
 const Form = () => {
   const [query, setQuery] = useState("");
@@ -22,8 +23,11 @@ const [isReplacing, setIsReplacing] = useState(false);
   const [description, setDescription] = useState("");
   const [selectedVideo, setSelectedVideo] = useState([]);
   const [selectedImage, setSelectedImage] = useState([]);
+
+  const { accessToken, userId } = useMovieContext();
+
+
   const prepareAllCreditsData = () => {
-    const userId = localStorage.getItem("userId");
     let allCreditsData = [];
   
     // Go through each department in credits state
@@ -50,10 +54,6 @@ const [isReplacing, setIsReplacing] = useState(false);
 
   const handleAddImage = async (movieId2) => {
     console.log("Adding image for movieId:", movieId2);
-  
-    const accessToken = localStorage.getItem("accessToken");
-    // Get userId from localStorage or your auth state management
-    const userId = localStorage.getItem("userId"); // Add this line
     
     const imageData = {
       movieId: movieId ? movieId : movieId2,
@@ -87,7 +87,6 @@ const [isReplacing, setIsReplacing] = useState(false);
 
   const handleAddImage2Edit = async (movieId2) => {
     console.log("Adding new image for movieId:", movieId2);
-    const accessToken = localStorage.getItem("accessToken");
     
     const imageData = {
       movieId: movieId ? movieId : movieId2,
@@ -127,7 +126,6 @@ const [isReplacing, setIsReplacing] = useState(false);
 
     // If no videos are found, proceed with empty fields in videoData
 
-    const accessToken = localStorage.getItem("accessToken");
     const videoData = {
       movieId: movieId ? movieId : movieId2, // Use the dynamically provided movieId
       url: selectedVideo?.key
@@ -162,7 +160,6 @@ const [isReplacing, setIsReplacing] = useState(false);
 
   const handleAddVideo2Edit = async (movieId2) => {
     console.log("Adding new video for movieId:", movieId2);
-    const accessToken = localStorage.getItem("accessToken");
   
     const videoData = {
       movieId: movieId ? movieId : movieId2,
@@ -207,7 +204,6 @@ const [isReplacing, setIsReplacing] = useState(false);
   
     console.log("Adding actors for movieId:", movieId2);
   
-    const accessToken = localStorage.getItem("accessToken");
     const userId = parseInt(localStorage.getItem("userId")) || 1;
     const currentMovieId = movieId ? movieId : movieId2;
   
@@ -278,7 +274,6 @@ const [isReplacing, setIsReplacing] = useState(false);
 
 // Add these functions to handle existing media
 const fetchExistingVideos = async () => {
-  const accessToken = localStorage.getItem("accessToken");
   try {
     const response = await axios({
       method: "get",
@@ -296,7 +291,6 @@ const fetchExistingVideos = async () => {
 };
 
 const fetchExistingPhotos = async () => {
-  const accessToken = localStorage.getItem("accessToken");
   try {
     const response = await axios({
       method: "get",
@@ -314,7 +308,6 @@ const fetchExistingPhotos = async () => {
 };
 
 const handleDeleteVideo = async (videoId) => {
-  const accessToken = localStorage.getItem("accessToken");
   try {
     await axios({
       method: "delete",
@@ -332,7 +325,6 @@ const handleDeleteVideo = async (videoId) => {
 };
 
 const handleDeletePhoto = async (photoId) => {
-  const accessToken = localStorage.getItem("accessToken");
   try {
     await axios({
       method: "delete",
@@ -495,8 +487,6 @@ const handleDeletePhoto = async (photoId) => {
     if (!videos || videos.length <= 0) {
       alert("No videos found. Proceeding with empty video data.");
     }
-  
-    const accessToken = localStorage.getItem("accessToken");
   
     if (!selectedMovie) {
       alert("Please search and select a movie.");
