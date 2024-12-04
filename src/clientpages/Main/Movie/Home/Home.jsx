@@ -1,13 +1,88 @@
 import { useNavigate } from "react-router-dom";
 import "./Home.css";
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useState, useRef } from "react";
 import axios from "axios";
 import MovieCards from "../../../../components/MovieCards/MovieCards";
 import { useMovieContext } from "../../../../context/MovieContext";
 
+const MovieRowComponent = ({ title, movies, navigate, setMovie }) => {
+  const sliderRef = useRef(null);
+  const scrollPosRef = useRef(0);
+
+  const handleScroll = () => {
+    if (sliderRef.current) {
+      scrollPosRef.current = sliderRef.current.scrollLeft;
+    }
+  };
+
+  useEffect(() => {
+    const slider = sliderRef.current;
+    if (slider) {
+      slider.addEventListener('scroll', handleScroll);
+      slider.scrollLeft = scrollPosRef.current;
+    }
+    return () => {
+      if (slider) {
+        slider.removeEventListener('scroll', handleScroll);
+      }
+    };
+  }, [movies]);
+
+  const scroll = (direction) => {
+    if (sliderRef.current) {
+      const scrollAmount = 300 * (direction === 'left' ? -1 : 1);
+      sliderRef.current.scrollBy({
+        left: scrollAmount,
+        behavior: 'smooth'
+      });
+    }
+  };
+
+  return (
+    <div className="movie-row">
+      <div className="row-header">
+        <h2 className="row-title">{title}</h2>
+        <div className="row-navigation">
+          <button 
+            className="slider-nav-button prev-button" 
+            onClick={() => scroll('left')}
+          >
+            ←
+          </button>
+          <button 
+            className="slider-nav-button next-button" 
+            onClick={() => scroll('right')}
+          >
+            →
+          </button>
+        </div>
+      </div>
+      <div className="movie-slider-container">
+        <div 
+          className="movie-slider" 
+          ref={sliderRef}
+        >
+          {movies.map((movie) => (
+            <div key={movie.id}>
+              <MovieCards
+                movie={movie}
+                onClick={() => {
+                  navigate(`/view/${movie.id}`);
+                  setMovie(movie);
+                }}
+              />
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+};
+
 const Home = () => {
   const { accessToken, userId } = useMovieContext();
   const navigate = useNavigate();
+  
   const [featuredMovie, setFeaturedMovie] = useState(null);
   const [isFading, setIsFading] = useState(false);
   const { movieList, setMovieList, setMovie } = useMovieContext();
@@ -16,6 +91,7 @@ const Home = () => {
     topRated: [],
     recent: [],
   });
+
   const getMovies = () => {
     axios
       .get("/movies")
@@ -23,21 +99,18 @@ const Home = () => {
         setMovieList(response.data);
         const random = Math.floor(Math.random() * response.data.length);
         setFeaturedMovie(response.data[random]);
-  
-        // Sort by popularity (highest to lowest)
+
         const sortedByPopularity = [...response.data].sort(
           (a, b) => b.popularity - a.popularity
         );
-  
-        // Sort by vote average (highest to lowest)
         const sortedByVoteAverage = [...response.data].sort(
           (a, b) => b.voteAverage - a.voteAverage
         );
-  
+
         setCategories({
-          trending: sortedByPopularity.slice(0, 6), // Top 6 most popular
-          topRated: sortedByVoteAverage.slice(0, 6), // Top 6 highest rated
-          recent: response.data.slice(0, 6), // Keep recent category or remove if not needed
+          trending: sortedByPopularity.slice(0, 6),
+          topRated: sortedByVoteAverage.slice(0, 6),
+          recent: response.data.slice(0, 6),
         });
       })
       .catch((e) => console.log(e));
@@ -53,9 +126,13 @@ const Home = () => {
   
     const changeFeaturedMovie = () => {
       setIsFading(true);
-  
+    
       fadeTimer = setTimeout(() => {
-        const random = Math.floor(Math.random() * movieList.length);
+        let random;
+        do {
+          random = Math.floor(Math.random() * movieList.length);
+        } while (movieList[random].id === featuredMovie?.id);
+    
         setFeaturedMovie(movieList[random]);
         setIsFading(false);
       }, 1000);
@@ -63,38 +140,17 @@ const Home = () => {
   
     const startLoop = () => {
       if (movieList.length) {
-        changeTimer = setInterval(changeFeaturedMovie, 5000);
+        changeTimer = setInterval(changeFeaturedMovie, 6000);
       }
     };
   
     startLoop();
   
-    
     return () => {
       clearInterval(changeTimer);
       clearTimeout(fadeTimer);
     };
   }, [movieList]); 
-  
-
-  const MovieRow = ({ title, movies }) => (
-    <div className="movie-row">
-      <h2 className="row-title">{title}</h2>
-      <div className="movie-slider">
-        {movies.map((movie) => (
-          <div key={movie.id}>
-            <MovieCards
-              movie={movie}
-              onClick={() => {
-                navigate(`/view/${movie.id}`);
-                setMovie(movie);
-              }}
-            />
-          </div>
-        ))}
-      </div>
-    </div>
-  );
 
   return (
     <div className="streaming-container">
@@ -142,27 +198,41 @@ const Home = () => {
         <div className="hero-section-loader"></div>
       )}
 
-<div className="content-rows">
-    <MovieRow title="Most Popular" movies={categories.trending} />
-    <MovieRow title="Highest Rated" movies={categories.topRated} />
-    {/* You can remove this row if you don't need the recent category */}
-    <MovieRow title="Recently Added" movies={categories.recent} />
+      <div className="content-rows">
+        <MovieRowComponent 
+          title="Most Popular" 
+          movies={categories.trending}
+          navigate={navigate}
+          setMovie={setMovie}
+        />
+        <MovieRowComponent 
+          title="Highest Rated" 
+          movies={categories.topRated}
+          navigate={navigate}
+          setMovie={setMovie}
+        />
+        <MovieRowComponent 
+          title="Recently Added" 
+          movies={categories.recent}
+          navigate={navigate}
+          setMovie={setMovie}
+        />
 
-    <h2 className="row-title">All Movies</h2>
-    <div className="list-container">
-      {movieList.map((movie) => (
-        <div key={movie.id}>
-          <MovieCards
-            movie={movie}
-            onClick={() => {
-              navigate(`/view/${movie.id}`);
-              setMovie(movie);
-            }}
-          />
+        <h2 className="row-title">All Movies</h2>
+        <div className="list-container">
+          {movieList.map((movie) => (
+            <div key={movie.id}>
+              <MovieCards
+                movie={movie}
+                onClick={() => {
+                  navigate(`/view/${movie.id}`);
+                  setMovie(movie);
+                }}
+              />
+            </div>
+          ))}
         </div>
-      ))}
-    </div>
-  </div>
+      </div>
     </div>
   );
 };
