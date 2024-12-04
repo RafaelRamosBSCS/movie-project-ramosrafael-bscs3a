@@ -137,7 +137,7 @@ const Home = () => {
 
     const startLoop = () => {
       if (movieList.length) {
-        changeTimer = setInterval(changeFeaturedMovie, 6000);
+        changeTimer = setInterval(changeFeaturedMovie, 8000);
       }
     };
 

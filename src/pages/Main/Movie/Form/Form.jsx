@@ -19,7 +19,8 @@ const Form = () => {
   const [selectedVideo, setSelectedVideo] = useState([]);
   const [selectedImage, setSelectedImage] = useState([]);
 
-  const { accessToken, userId } = useMovieContext();
+  // const { accessToken, userId } = useMovieContext();
+  const accessToken = localStorage.getItem("accessToken");
 
 
   const [credits, setCredits] = useState({
