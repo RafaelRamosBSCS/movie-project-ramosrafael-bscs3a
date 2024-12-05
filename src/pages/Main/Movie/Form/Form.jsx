@@ -819,7 +819,8 @@ const Form = () => {
   </div>
 </section>
 
-<section className="content-section">
+{/* Photos Section */}
+<section className="content-section photos-container">
   <h2 className="section-title">Photos</h2>
 
   {/* Current Photos - Only shown when editing */}
@@ -855,16 +856,16 @@ const Form = () => {
       <span>{isImagesExpanded ? '▼' : '▶'}</span>
     </div>
     <div className={`collapsible-content ${isImagesExpanded ? 'expanded' : ''}`}>
-      <div className="photo-grid">
+      <div className="photos-grid">
         {images.map((image) => (
-          <div key={image.file_path} className="photo-item">
-            <div className="photo-preview">
+          <div key={image.file_path} className="photo-card">
+            <div className="photo-image">
               <img
                 src={`https://image.tmdb.org/t/p/w500/${image.file_path}`}
                 alt="Movie Scene"
               />
             </div>
-            <div className="photo-info">
+            <div className="photo-details">
               <div className="photo-actions">
                 <button 
                   onClick={() => {
