@@ -1,14 +1,15 @@
-import { useEffect, useState } from 'react';
-import { useMovieContext } from '../../../../context/MovieContext';
-import { useNavigate, useParams } from 'react-router-dom';
-import MovieGenres from '../../../../components/MovieGenres/MovieGenres';
-import axios from 'axios';
-import './View.css';
+import { useEffect, useState } from "react";
+import { useMovieContext } from "../../../../context/MovieContext";
+import { useNavigate, useParams } from "react-router-dom";
+import MovieGenres from "../../../../components/MovieGenres/MovieGenres";
+import axios from "axios";
+import "./View.css";
 
 function View() {
-  const { movie, setMovie, genres } = useMovieContext();
+  const { movie, setMovie } = useMovieContext();
   const { movieId } = useParams();
   const navigate = useNavigate();
+  const [isExpanded, setIsExpanded] = useState(false);
 
   useEffect(() => {
     if (movieId !== undefined) {
@@ -16,7 +17,9 @@ function View() {
         .get(`/movies/${movieId}`)
         .then((response) => {
           const movieData = response.data;
-          const releaseYear = movieData.releaseDate ? movieData.releaseDate.split('-')[0] : null;
+          const releaseYear = movieData.releaseDate
+            ? movieData.releaseDate.split("-")[0]
+            : null;
 
           setMovie({
             ...movieData,
@@ -25,84 +28,67 @@ function View() {
         })
         .catch((e) => {
           console.log(e);
-          navigate('/');
+          navigate("/");
         });
     }
   }, [movieId, navigate, setMovie]);
 
   return (
-    <>
+    <div className="movie-view-container">
       {movie && (
         <>
-          <div>
-            <div className="poster-image" >
-              <img
-                src={movie.posterPath}
-                alt={movie?.title || "Movie Poster"}
-                style={{
-                  width: "200px",
-                  height: "auto", 
-                }}
-              />
+          <section className="hero-section">
+            <div
+              className="hero-backdrop"
+              style={{
+                backgroundImage: `linear-gradient(to top, #111 10%, transparent 60%),
+                                 url(${movie.backdropPath})`,
+              }}
+            >
+              <div className="hero-content">
+                <div className="movie-info">
+                  <img
+                    src={movie.posterPath}
+                    alt={movie.title}
+                    className="hero-poster"
+                  />
+                  <div className="movie-details">
+                    <h1 className="movie-title">
+                      {movie.title}
+                      <span className="release-year">
+                        ({movie.releaseYear})
+                      </span>
+                    </h1>
+                    <MovieGenres movieId={movie.tmdbId} />
+                    <p className="movie-overview">{movie.overview}</p>
+                  </div>
+                </div>
+              </div>
             </div>
-            <div className='banner'>
-              <h1>{movie.title} ({movie.releaseYear})</h1>
-            </div>
-          </div>
-          <div>
-            <div className='info'>
-              <h3>{movie.overview}</h3>
-              <MovieGenres movieId={movie.tmdbId} />
-            </div>
-          </div>
+          </section>
 
-          {/* Videos Section */}
           {movie.videos && movie.videos.length > 0 && (
-            <div className="videos-section">
-              <h2>Videos</h2>
+            <section className="content-section">
+              <h2 className="section-title">Videos</h2>
               <div className="video-grid">
                 {movie.videos.map((video, index) => (
                   <div key={index} className="video-card">
                     <iframe
-                      width="560"
-                      height="315"
                       src={video.url}
                       title={video.name}
                       frameBorder="0"
                       allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                       allowFullScreen
                     ></iframe>
-                    <h4>{video.name}</h4>
                   </div>
                 ))}
               </div>
-            </div>
+            </section>
           )}
-          {/* Cast & Crew Section */}
-          {movie.casts && movie.casts.length > 0 && (
-            <div className="cast-section">
-              <h2>Cast & Crew</h2>
-              <div className="cast-grid">
-                {movie.casts.map((cast, index) => (
-                  <div key={index} className="cast-card">
-                    <img
-                      src={cast.url || "https://via.placeholder.com/150x150.png?text=No+Image"}
-                      alt={cast.name}
-                      className="cast-image"
-                    />
-                    <div className="cast-info">
-                      <h4>{cast.name}</h4>
-                      <p>{cast.characterName}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-          {/* Photos Section */}
+
           {movie.photos && movie.photos.length > 0 && (
-            <div className="photos-section">
-              <h2>Photos</h2>
+            <section className="content-section">
+              <h2 className="section-title">Photos</h2>
               <div className="photo-grid">
                 {movie.photos.map((photo, index) => (
                   <div key={index} className="photo-card">
@@ -114,11 +100,41 @@ function View() {
                   </div>
                 ))}
               </div>
-            </div>
+            </section>
+          )}
+
+          {movie.casts && movie.casts.length > 0 && (
+            <section className="content-section cast-section">
+              <h2 className="section-title">Cast & Crew</h2>
+              <div className={`cast-grid ${isExpanded ? "expanded" : ""}`}>
+                {movie.casts.map((cast, index) => (
+                  <div key={index} className="cast-card">
+                    <img
+                      src={
+                        cast.url ||
+                        "https://via.placeholder.com/150x150.png?text=No+Image"
+                      }
+                      alt={cast.name}
+                      className="cast-image"
+                    />
+                    <div className="cast-info">
+                      <h4>{cast.name}</h4>
+                      <p>{cast.characterName}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <button
+                className="expand-button"
+                onClick={() => setIsExpanded(!isExpanded)}
+              >
+                {isExpanded ? "Show Less" : "Show More"}
+              </button>
+            </section>
           )}
         </>
       )}
-    </>
+    </div>
   );
 }
 

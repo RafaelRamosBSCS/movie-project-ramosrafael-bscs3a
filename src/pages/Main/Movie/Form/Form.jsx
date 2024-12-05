@@ -18,10 +18,12 @@ const Form = () => {
   const [existingPhotos, setExistingPhotos] = useState([]);
   const [selectedVideo, setSelectedVideo] = useState([]);
   const [selectedImage, setSelectedImage] = useState([]);
+  const [isImagesExpanded, setIsImagesExpanded] = useState(false);
+  const [isVideoExpanded, setIsVideoExpanded] = useState(false);
+  const [isCastExpanded, setIsCastExpanded] = useState(false);
 
   // const { accessToken, userId } = useMovieContext();
   const accessToken = localStorage.getItem("accessToken");
-
 
   const [credits, setCredits] = useState({
     Acting: [],
@@ -81,8 +83,8 @@ const Form = () => {
     console.log("Sending image data:", imageData);
     try {
       const response = await axios({
-        method: "post", 
-        url: "/photos", 
+        method: "post",
+        url: "/photos",
         data: imageData,
         headers: {
           Authorization: `Bearer ${accessToken}`,
@@ -92,7 +94,7 @@ const Form = () => {
       console.log("Photo added successfully:", response.data);
       alert("Photo added successfully!");
       if (movieId) {
-        fetchExistingPhotos(); 
+        fetchExistingPhotos();
       }
       return true;
     } catch (error) {
@@ -109,18 +111,16 @@ const Form = () => {
     console.log(movieId2);
     console.log(movieId);
 
-
-
     const videoData = {
-      movieId: movieId ? movieId : movieId2, 
+      movieId: movieId ? movieId : movieId2,
       url: selectedVideo?.key
         ? `https://www.youtube.com/embed/${selectedVideo.key}`
-        : "https://www.youtube.com/embed/not_available", 
-      name: selectedVideo?.name || "No video selected", 
-      site: selectedVideo?.site || "YouTube", 
-      videoKey: selectedVideo?.key || "not_available", 
-      videoType: selectedVideo?.type || "placeholder", 
-      official: selectedVideo?.official || false, 
+        : "https://www.youtube.com/embed/not_available",
+      name: selectedVideo?.name || "No video selected",
+      site: selectedVideo?.site || "YouTube",
+      videoKey: selectedVideo?.key || "not_available",
+      videoType: selectedVideo?.type || "placeholder",
+      official: selectedVideo?.official || false,
     };
 
     console.log(videoData);
@@ -135,11 +135,11 @@ const Form = () => {
       });
       console.log("Video added successfully:", response.data);
       alert("Video added successfully!");
-      return true; 
+      return true;
     } catch (error) {
       console.error("Error adding video:", error);
       alert("Failed to add video. Please try again.");
-      return false; 
+      return false;
     }
   };
 
@@ -161,8 +161,8 @@ const Form = () => {
     console.log("Sending video data:", videoData);
     try {
       const response = await axios({
-        method: "post", 
-        url: "/videos", 
+        method: "post",
+        url: "/videos",
         data: videoData,
         headers: {
           Authorization: `Bearer ${accessToken}`,
@@ -171,7 +171,7 @@ const Form = () => {
       console.log("Video added successfully:", response.data);
       alert("Video added successfully!");
       if (movieId) {
-        fetchExistingVideos(); 
+        fetchExistingVideos();
       }
       return true;
     } catch (error) {
@@ -193,7 +193,6 @@ const Form = () => {
     const currentMovieId = movieId ? movieId : movieId2;
 
     let allPromises = [];
-
 
     credits.Acting.forEach((member) => {
       if (member.name && !member.department) {
@@ -244,7 +243,6 @@ const Form = () => {
     }
   };
 
- 
   const fetchExistingVideos = async () => {
     try {
       const response = await axios({
@@ -272,7 +270,9 @@ const Form = () => {
         },
       });
       console.log("Existing photos response:", response.data);
-      const photosArray = Array.isArray(response.data) ? response.data : [response.data];
+      const photosArray = Array.isArray(response.data)
+        ? response.data
+        : [response.data];
       setExistingPhotos(photosArray);
     } catch (error) {
       console.error("Error fetching existing photos:", error);
@@ -307,13 +307,12 @@ const Form = () => {
         },
       });
       alert("Photo deleted successfully!");
-      fetchExistingPhotos(); 
+      fetchExistingPhotos();
     } catch (error) {
       console.error("Error deleting photo:", error);
       alert("Failed to delete photo. Please try again.");
     }
   };
-
 
   const handleSearch = useCallback(() => {
     axios({
@@ -390,7 +389,7 @@ const Form = () => {
       alert("No movie data to save.");
       return;
     }
-  
+
     const textData = {
       tmdbId: selectedMovie.id,
       title: selectedMovie.original_title,
@@ -398,15 +397,15 @@ const Form = () => {
       popularity: selectedMovie.popularity,
       releaseDate: selectedMovie.release_date,
       voteAverage: selectedMovie.vote_average,
-      backdropPath: selectedMovie.backdrop_path 
+      backdropPath: selectedMovie.backdrop_path
         ? `https://image.tmdb.org/t/p/original${selectedMovie.backdrop_path}`
         : "",
-      posterPath: selectedMovie.poster_path 
+      posterPath: selectedMovie.poster_path
         ? `https://image.tmdb.org/t/p/original${selectedMovie.poster_path}`
         : "",
       isFeatured: 0,
     };
-  
+
     try {
       const response = await axios({
         method: "patch",
@@ -416,7 +415,7 @@ const Form = () => {
           Authorization: `Bearer ${accessToken}`,
         },
       });
-  
+
       console.log("Text data saved successfully:", response.data);
       alert("Text changes saved successfully!");
     } catch (error) {
@@ -429,16 +428,16 @@ const Form = () => {
       alert("Videos are available. Please select a video before proceeding.");
       return false;
     }
-  
+
     if (!videos || videos.length <= 0) {
       alert("No videos found. Proceeding with empty video data.");
     }
-  
+
     if (!selectedMovie) {
       alert("Please search and select a movie.");
       return;
     }
-  
+
     const data = {
       tmdbId: selectedMovie.id,
       title: selectedMovie.original_title,
@@ -450,7 +449,7 @@ const Form = () => {
       posterPath: `https://image.tmdb.org/t/p/original${selectedMovie.poster_path}`,
       isFeatured: 0,
     };
-  
+
     try {
       const response = await axios({
         method: movieId ? "patch" : "post",
@@ -460,24 +459,23 @@ const Form = () => {
           Authorization: `Bearer ${accessToken}`,
         },
       });
-  
+
       const newMovieId = movieId || response.data.id;
       console.log("Movie saved successfully:", response.data);
       alert("Movie saved successfully!");
-  
+
       const isVideoAdded = await handleAddVideo(newMovieId);
       if (!isVideoAdded) {
         alert("Video could not be added. Please try again.");
         return;
       }
-  
+
       const isImageAdded = await handleAddImage(newMovieId);
       if (!isImageAdded) {
         alert("Image could not be added. Please try again.");
         return;
       }
-  
-      
+
       if (!movieId && !isCastAdded) {
         const isCastsAdded = await handleAddCast(newMovieId);
         if (!isCastsAdded) {
@@ -485,7 +483,7 @@ const Form = () => {
           return;
         }
       }
-  
+
       navigate(`/main/movies`);
     } catch (error) {
       console.error("Error saving movie:", error);
@@ -548,24 +546,20 @@ const Form = () => {
           const videoResults = videoResponse.data.results;
           const validVideos = videoResults.filter(
             (video) =>
-              video.site === "YouTube" && 
-              (video.type === "Trailer" || video.type === "Teaser") && 
-              video.official 
+              video.site === "YouTube" &&
+              (video.type === "Trailer" || video.type === "Teaser") &&
+              video.official
           );
 
-          
           setVideos(validVideos.length > 0 ? validVideos : "");
 
-          
           const backdrops = imageResponse.data.backdrops || [];
           const posters = imageResponse.data.posters || [];
           const imageResults = [...backdrops, ...posters];
           setImages(imageResults.length > 0 ? imageResults : "");
 
-         
           const { cast = [], crew = [] } = creditsResponse.data;
 
-          
           const organizedCredits = {
             Acting: [],
             Production: [],
@@ -606,166 +600,177 @@ const Form = () => {
   }, [movieId]);
 
   return (
-    <>
-      <h1>{movieId !== undefined ? "Edit " : "Create "} Movie</h1>
+    <div className="form-container">
+      <div className="form-header">
+        <h1>{movieId ? "Edit Movie" : "Create New Movie"}</h1>
+      </div>
 
-      {movieId === undefined && (
-        <>
+      {!movieId && (
+        <section className="search-section">
           <div className="search-container">
-            Search Movie:{" "}
             <input
               type="text"
+              placeholder="Search for a movie..."
               onChange={(event) => setQuery(event.target.value)}
             />
             <button type="button" onClick={handleSearch}>
               Search
             </button>
-            <div className="searched-movie">
-              {searchedMovieList.map((movie) => (
-                <p key={movie.id} onClick={() => handleSelectMovie(movie)}>
-                  {movie.original_title}
-                </p>
-              ))}
-            </div>
           </div>
-          <hr />
-        </>
+          <div className="search-results">
+            {searchedMovieList.map((movie) => (
+              <div
+                key={movie.id}
+                className="search-result-item"
+                onClick={() => handleSelectMovie(movie)}
+              >
+                {movie.original_title} ({movie.release_date?.split("-")[0]})
+              </div>
+            ))}
+          </div>
+        </section>
       )}
 
-      <div className="container">
-        <form>
-          {selectedMovie ? (
-            <img
-              className="poster-image"
-              src={`https://image.tmdb.org/t/p/original${selectedMovie.poster_path}`}
-              alt={selectedMovie.original_title}
-            />
-          ) : (
-            ""
-          )}
-          <div className="field">
-            Title:
-            <input
-              type="text"
-              disabled={!movieId}
-              value={selectedMovie ? selectedMovie.original_title : ""}
-              onChange={(e) =>
-                setSelectedMovie({
-                  ...selectedMovie,
-                  original_title: e.target.value,
-                })
-              }
-            />
-          </div>
-          <div className="field">
-            Overview:
-            <textarea
-              disabled={!movieId}
-              rows={10}
-              value={selectedMovie ? selectedMovie.overview : ""}
-              onChange={(e) =>
-                setSelectedMovie({ ...selectedMovie, overview: e.target.value })
-              }
-            />
-          </div>
-          <div className="field">
-            Popularity:
-            <input
-              type="text"
-              disabled={!movieId}
-              value={selectedMovie ? selectedMovie.popularity : ""}
-              onChange={(e) =>
-                setSelectedMovie({
-                  ...selectedMovie,
-                  popularity: e.target.value,
-                })
-              }
-            />
-          </div>
-          <div className="field">
-            Release Date:
-            <input
-              type="text"
-              disabled={!movieId}
-              value={selectedMovie ? selectedMovie.release_date : ""}
-              onChange={(e) =>
-                setSelectedMovie({
-                  ...selectedMovie,
-                  release_date: e.target.value,
-                })
-              }
-            />
-          </div>
-          <div className="field">
-            Vote Average:
-            <input
-              type="text"
-              disabled={!movieId}
-              value={selectedMovie ? selectedMovie.vote_average : ""}
-              onChange={(e) =>
-                setSelectedMovie({
-                  ...selectedMovie,
-                  vote_average: e.target.value,
-                })
-              }
-            />
-          </div>
-          <h2>When Creating a Movie, Casts will be automatically added</h2>
-          <div className="button-container">
-      {movieId ? (
-        // Edit mode - show both buttons
+      {selectedMovie && (
         <>
-          <button 
-            type="button" 
-            onClick={handleTextSave}
-            className="save-button text-save"
-          >
-            Save Text Only
-          </button>
-          <button 
-            type="button" 
-            onClick={handleSave}
-            className="save-button complete-save"
-          >
-            Update Video/Photo
-          </button>
-        </>
-      ) : (
-        // Create mode - show only the complete save button
-        <button 
-          type="button" 
-          onClick={handleSave}
-          className="save-button"
-        >
-          Save
-        </button>
-      )}
-    </div>
-        </form>
-{/* For the Videos Section */}
-<h2>Videos</h2>
-<div className="videoSection">
-  {/* Existing Videos (when editing) */}
-  {movieId && existingVideos.length > 0 && (
-    <div className="existingVideos">
-      <h3>Current Videos</h3>
-      <div className="videosMainCont">
-        {existingVideos.map((video) => (
-          <div className="videosCont" key={video.id}>
-            <p>{video.name}</p>
-            <div className="videolist">
-              <div className="video-preview">
-                <iframe
-                  width="280"
-                  height="158"
-                  src={video.url}
-                  title={video.name}
-                  frameBorder="0"
-                  allowFullScreen
-                ></iframe>
+          <form onSubmit={(e) => e.preventDefault()}>
+            <div className="movie-form">
+              <div className="poster-preview">
+                <img
+                  src={`https://image.tmdb.org/t/p/w500${selectedMovie.poster_path}`}
+                  alt={selectedMovie.original_title}
+                />
               </div>
-              <button onClick={() => handleDeleteVideo(movieId)}>
-                Delete Video
+
+              <div className="form-fields">
+                <div className="form-field">
+                  <label>Title</label>
+                  <input
+                    type="text"
+                    disabled={!movieId}
+                    value={selectedMovie.original_title || ""}
+                    onChange={(e) =>
+                      setSelectedMovie({
+                        ...selectedMovie,
+                        original_title: e.target.value,
+                      })
+                    }
+                  />
+                </div>
+
+                <div className="form-field">
+                  <label>Overview</label>
+                  <textarea
+                    disabled={!movieId}
+                    rows={6}
+                    value={selectedMovie.overview || ""}
+                    onChange={(e) =>
+                      setSelectedMovie({
+                        ...selectedMovie,
+                        overview: e.target.value,
+                      })
+                    }
+                  />
+                </div>
+
+                <div className="form-fields-row">
+                  <div className="form-field">
+                    <label>Popularity</label>
+                    <input
+                      type="number"
+                      disabled={!movieId}
+                      value={selectedMovie.popularity || ""}
+                      onChange={(e) =>
+                        setSelectedMovie({
+                          ...selectedMovie,
+                          popularity: e.target.value,
+                        })
+                      }
+                    />
+                  </div>
+
+                  <div className="form-field">
+                    <label>Release Date</label>
+                    <input
+                      type="text"
+                      disabled={!movieId}
+                      value={selectedMovie.release_date || ""}
+                      onChange={(e) =>
+                        setSelectedMovie({
+                          ...selectedMovie,
+                          release_date: e.target.value,
+                        })
+                      }
+                    />
+                  </div>
+
+                  <div className="form-field">
+                    <label>Vote Average</label>
+                    <input
+                      type="number"
+                      step="0.1"
+                      disabled={!movieId}
+                      value={selectedMovie.vote_average || ""}
+                      onChange={(e) =>
+                        setSelectedMovie({
+                          ...selectedMovie,
+                          vote_average: e.target.value,
+                        })
+                      }
+                    />
+                  </div>
+                </div>
+
+                <div className="form-actions">
+                  {movieId ? (
+                    <div className="button-container">
+                      <button
+                        type="button"
+                        onClick={handleTextSave}
+                        className="save-button text-save"
+                      >
+                        Save Text Changes
+                      </button>
+                      <button
+                        type="button"
+                        onClick={handleSave}
+                        className="save-button complete-save"
+                      >
+                        Update Media
+                      </button>
+                    </div>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={handleSave}
+                      className="save-button"
+                    >
+                      Create Movie
+                    </button>
+                  )}
+                </div>
+              </div>
+            </div>
+          </form>
+
+          
+          <section className="content-section">
+  <h2 className="section-title">Videos</h2>
+  
+  
+  {movieId && existingVideos.length > 0 && (
+    <div className="media-column">
+      <h3 className="column-title">Current Videos</h3>
+      <div className="media-grid">
+        {existingVideos.map((video) => (
+          <div key={video.id} className="media-card">
+            <div className="media-preview">
+              <iframe src={video.url} title={video.name} frameBorder="0" allowFullScreen />
+            </div>
+            <div className="media-info">
+              <h4>{video.name}</h4>
+              <button onClick={() => handleDeleteVideo(video.id)} className="action-button delete">
+                Delete
               </button>
             </div>
           </div>
@@ -774,191 +779,156 @@ const Form = () => {
     </div>
   )}
 
-  <h3>{movieId ? "Add New Video" : "Available Videos"}</h3>
-  <div className="videosMainCont">
-    {videos && videos.length > 0 ? (
-      videos.map((video) => (
-        <div className="videosCont" key={video.id}>
-          <p>{video.name}</p>
-          <div className="videolist">
-            <div className="video-preview">
+  {/* Available Videos */}
+  <div className="collapsible-section">
+    <div 
+      className="collapsible-header"
+      onClick={() => setIsVideoExpanded(!isVideoExpanded)}
+    >
+      <h3>Available Videos</h3>
+      <span>{isVideoExpanded ? '▼' : '▶'}</span>
+    </div>
+    <div className={`collapsible-content ${isVideoExpanded ? 'expanded' : ''}`}>
+      <div className="media-list">
+        {videos.map((video) => (
+          <div key={video.id} className="media-item">
+            <div className="media-preview">
               <iframe
-                width="280"
-                height="158"
                 src={`https://www.youtube.com/embed/${video.key}`}
                 title={video.name}
                 frameBorder="0"
                 allowFullScreen
-              ></iframe>
-            </div>
-            <button
-              onClick={() => {
-                setSelectedVideo(video);
-                alert("Successfully selected a video!");
-              }}
-            >
-              Select Video
-            </button>
-          </div>
-        </div>
-      ))
-    ) : (
-      <p>No videos found</p>
-    )}
-  </div>
-
-  {/* Only show Add Selected Video button in edit mode */}
-  {movieId && selectedVideo && (
-    <button
-      onClick={() => handleAddVideo2Edit(movieId)}
-      className="addVideoButton"
-    >
-      Add Selected Video
-    </button>
-  )}
-</div>
-      </div>
-      <h2>Photos</h2>
-<div className="photoSection">
-  {/* Existing Photos (when editing) */}
-  {movieId && existingPhotos.length > 0 && (
-    <div className="existingPhotos">
-      <h3>Current Photos</h3>
-      <div className="imagesMainCont">
-        {existingPhotos.map((photo) => (
-          <div className="imagesCont" key={photo.id}>
-            <div className="image-preview">
-              <img
-                src={photo.url}
-                alt="Movie Scene"
-                width="200"
               />
             </div>
-            <button onClick={() => handleDeletePhoto(movieId)}>
-              Delete Photo
-            </button>
+            <div className="media-info">
+              <h4>{video.name}</h4>
+              <button 
+                onClick={() => {
+                  setSelectedVideo(video);
+                  alert("Video selected!");
+                }}
+                className="action-button select"
+              >
+                Select
+              </button>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  </div>
+</section>
+
+          {/* Photos Section */}
+          <section className="content-section">
+  <h2 className="section-title">Photos</h2>
+
+  {/* Only show current photos when editing */}
+  {movieId && existingPhotos.length > 0 && (
+    <div className="media-column">
+      <h3 className="column-title">Current Photos</h3>
+      <div className="media-grid">
+        {existingPhotos.map((photo) => (
+          <div key={photo.id} className="media-card">
+            <div className="media-preview">
+              <img src={photo.url} alt="Movie Scene" />
+            </div>
+            <div className="media-info">
+              <button onClick={() => handleDeletePhoto(photo.id)} className="action-button delete">
+                Delete
+              </button>
+            </div>
           </div>
         ))}
       </div>
     </div>
   )}
 
-  <h3>{movieId ? 'Add New Photo' : 'Available Photos'}</h3>
-  <div className="imagesMainCont">
-    {selectedMovie ? (
-      images && images.length > 0 ? (
-        images.map((image) => (
-          <div className="imagesCont" key={image.file_path}>
-            <div className="image-preview">
+  
+  <div className="collapsible-section">
+    <div 
+      className="collapsible-header"
+      onClick={() => setIsImagesExpanded(!isImagesExpanded)}
+    >
+      <h3>Available Photos</h3>
+      <span>{isImagesExpanded ? '▼' : '▶'}</span>
+    </div>
+    <div className={`collapsible-content ${isImagesExpanded ? 'expanded' : ''}`}>
+      <div className="media-list">
+        {images.map((image) => (
+          <div key={image.file_path} className="media-item">
+            <div className="media-preview">
               <img
                 src={`https://image.tmdb.org/t/p/w500/${image.file_path}`}
                 alt="Movie Scene"
-                width="200"
               />
             </div>
-            <button
-              onClick={() => {
-                setSelectedImage(image);
-                alert("Successfully selected an image!");
-              }}
-            >
-              Select Image
-            </button>
-          </div>
-        ))
-      ) : (
-        <p>No images found for this movie</p>
-      )
-    ) : (
-      <p>Select a movie to view available images</p>
-    )}
-  </div>
-
-  {/* Only show Add Selected Photo button in edit mode */}
-  {movieId && selectedImage && (
-    <button onClick={() => handleAddImage2Edit(movieId)} className="addPhotoButton">
-      Add Selected Photo
-    </button>
-  )}
-</div>
-
-      <div className="creditsMainCont">
-        {credits.Acting.length > 0 && (
-          <div className="actorsSection">
-            <h3>Actors</h3>
-            <div className="membersList">
-              {credits.Acting.map((actor) => (
-                <div key={actor.credit_id} className="memberCard">
-                  <img
-                    className="profileImage"
-                    src={
-                      actor.profile_path
-                        ? `https://image.tmdb.org/t/p/w185${actor.profile_path}`
-                        : "https://via.placeholder.com/150x150.png?text=No+Image"
-                    }
-                    alt={actor.name}
-                  />
-                  <div className="memberInfo">
-                    <h4>{actor.name}</h4>
-                    <p>as {actor.character}</p>
-                  </div>
-                </div>
-              ))}
+            <div className="media-info">
+              <button 
+                onClick={() => {
+                  setSelectedImage(image);
+                  alert("Image selected!");
+                }}
+                className="action-button select"
+              >
+                Select
+              </button>
             </div>
           </div>
-        )}
+        ))}
       </div>
+    </div>
+  </div>
+</section>
 
-      {credits.Acting.length > 0 && (
-        <button
-          onClick={() => handleAddCast(selectedMovie?.id)}
-          className="addAllCastsButton"
-          disabled={isCastAdded}
-          style={{
-            padding: "10px 20px",
-            margin: "20px 0",
-            backgroundColor: isCastAdded ? "#cccccc" : "#007bff",
-            color: "white",
-            border: "none",
-            borderRadius: "5px",
-            cursor: isCastAdded ? "not-allowed" : "pointer",
-          }}
-        >
-          {isCastAdded ? "Actors Added" : "Add All Actors"}
-        </button>
-      )}
-      {<h1>"KAYO NALANG BAHALA MAGLAGAY SA OUTLET"</h1>}
+          
+          <section className="content-section">
+  <h2 className="section-title">Cast Members</h2>
+  
+  <div className="collapsible-section">
+    <div 
+      className="collapsible-header"
+      onClick={() => setIsCastExpanded(!isCastExpanded)}
+    >
+      <h3>Available Cast</h3>
+      <span>{isCastExpanded ? '▼' : '▶'}</span>
+    </div>
+    <div className={`collapsible-content ${isCastExpanded ? 'expanded' : ''}`}>
+      <div className="media-list">
+        {credits.Acting.map((actor) => (
+          <div key={actor.credit_id} className="media-item">
+            <div className="media-preview">
+              <img
+                src={
+                  actor.profile_path
+                    ? `https://image.tmdb.org/t/p/w185${actor.profile_path}`
+                    : "https://via.placeholder.com/150x150.png?text=No+Image"
+                }
+                alt={actor.name}
+              />
+            </div>
+            <div className="media-info">
+              <h4>{actor.name}</h4>
+              <p>as {actor.character}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  </div>
 
-      {movieId && (
-        <div>
-          <hr />
-          <nav>
-            <ul className="tabs">
-              <li
-                onClick={() => {
-                  navigate(`/main/movies/form/${movieId}/cast-and-crews`);
-                }}
-              >
-                Cast & Crews
-              </li>
-              <li
-                onClick={() => {
-                  navigate(`/main/movies/form/${movieId}/videos`);
-                }}
-              >
-                Videos
-              </li>
-              <li
-                onClick={() => {
-                  navigate(`/main/movies/form/${movieId}/photos`);
-                }}
-              ></li>
-            </ul>
-          </nav>
-          <Outlet />
-        </div>
+  {!isCastAdded && (
+    <button
+      onClick={() => handleAddCast(selectedMovie?.id)}
+      className="action-button add-all"
+    >
+      Add All Cast Members
+    </button>
+  )}
+</section>
+        </>
       )}
-    </>
+    </div>
   );
 };
 

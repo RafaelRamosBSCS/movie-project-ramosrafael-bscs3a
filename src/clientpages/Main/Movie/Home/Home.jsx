@@ -79,6 +79,7 @@ const MovieRowComponent = ({ title, movies, navigate, setMovie }) => {
 const Home = () => {
   const { accessToken, userId } = useMovieContext();
   const navigate = useNavigate();
+  const [movieGenres, setMovieGenres] = useState([]);
 
   const [featuredMovie, setFeaturedMovie] = useState(null);
   const [isFading, setIsFading] = useState(false);
@@ -88,6 +89,24 @@ const Home = () => {
     topRated: [],
     recent: [],
   });
+
+  useEffect(() => {
+    if (featuredMovie?.tmdbId) {
+      axios({
+        method: "get",
+        url: `https://api.themoviedb.org/3/movie/${featuredMovie.tmdbId}?language=en-US`,
+        headers: {
+          Accept: "application/json",
+          Authorization:
+            "Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI2ODhiYjc3NjQwOGNhNjM3MWIyMTY3ZmFiNDdlOTQ0YiIsIm5iZiI6MTczMzA1ODcwNi41NDQ5OTk4LCJzdWIiOiI2NzRjNjA5MjM4NjI4MzkyN2RlMDE4N2YiLCJzY29wZXMiOlsiYXBpX3JlYWQiXSwidmVyc2lvbiI6MX0.oYRqyrw4Ltmuo7z_J7ZTtpw1QtWIQoO8DLF2tDDW0-A",
+        },
+      })
+        .then((response) => {
+          setMovieGenres(response.data.genres);
+        })
+        .catch((error) => console.log("Error fetching genres:", error));
+    }
+  }, [featuredMovie]);
 
   const getMovies = () => {
     axios
@@ -126,17 +145,24 @@ const Home = () => {
 
       fadeTimer = setTimeout(() => {
         let random;
+        let attempts = 0;
+        const maxAttempts = 10;
+
         do {
           random = Math.floor(Math.random() * movieList.length);
-        } while (movieList[random].id === featuredMovie?.id);
+          attempts++;
+        } while (
+          movieList[random].id === featuredMovie?.id &&
+          attempts < maxAttempts
+        );
 
         setFeaturedMovie(movieList[random]);
         setIsFading(false);
-      }, 1000);
+      }, 1900);
     };
 
     const startLoop = () => {
-      if (movieList.length) {
+      if (movieList.length > 1) {
         changeTimer = setInterval(changeFeaturedMovie, 8000);
       }
     };
@@ -161,24 +187,20 @@ const Home = () => {
                 featuredMovie.backdropPath
                   ? `https://image.tmdb.org/t/p/w1280${featuredMovie.backdropPath}`
                   : featuredMovie.posterPath
-                    ? `https://image.tmdb.org/t/p/w780${featuredMovie.posterPath}`
-                    : ''
+                  ? `https://image.tmdb.org/t/p/w780${featuredMovie.posterPath}`
+                  : ""
               })`,
             }}
           >
             <div className="hero-content">
               <h1 className="hero-title">{featuredMovie.title}</h1>
               <p className="hero-overview">{featuredMovie.overview}</p>
+              <div className="hero-genres">
+                {movieGenres.map((genre) => (
+                  <span key={genre.id}>{genre.name}</span>
+                ))}
+              </div>
               <div className="hero-buttons">
-                <button
-                  className="play-button"
-                  onClick={() => {
-                    navigate(`/view/${featuredMovie.id}`);
-                    setMovie(featuredMovie);
-                  }}
-                >
-                  ▶ Watch Now
-                </button>
                 <button
                   className="more-info-button"
                   onClick={() => {

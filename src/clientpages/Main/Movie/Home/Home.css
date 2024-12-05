@@ -83,10 +83,7 @@
   opacity: 0.9;
 }
 
-.play-button {
-  background-color: white;
-  color: black;
-}
+
 
 .more-info-button {
   background-color: rgba(109, 109, 110, 0.7);
@@ -201,4 +198,21 @@
 
 .next-button {
   right: 10px;
+}
+
+.hero-genres {
+  margin-bottom: 2rem;
+  font-size: 1.1rem;
+  color: rgba(255, 255, 255, 0.8);
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+}
+
+.hero-genres span {
+  display: inline-block;
+  padding: 0.4rem 1rem;
+  margin-right: 0.5rem;
+  margin-bottom: 0.5rem;
+  background-color: rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+  backdrop-filter: blur(4px);
 }
