@@ -8,14 +8,40 @@
 .Main .container {
   display: flex;
   width: 100vw;
+  height: 100vh;
+  position: relative;
 }
 
 .Main .container .outlet {
-  flex-grow: 3;
-  padding: 1rem;
+  flex-grow: 1;
+  padding: 1rem 2rem;
   overflow-y: auto;
-  margin-left: 240px; /* Default margin for expanded sidebar */
-  transition: margin-left 0.3s ease;
+  margin-left: 80px;
+  position: relative;
+  transition: filter 0.3s ease;
+}
+
+/* Add overlay for dimming effect */
+.Main .container::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0);
+  pointer-events: none;
+  transition: background-color 0.3s ease;
+  z-index: 90;
+}
+
+.Main .container .navigation:hover ~ .outlet {
+  filter: brightness(0.5);
+  margin-left: 80px;
+}
+
+.Main .container .navigation:hover ~ .container::before {
+  background-color: rgba(0, 0, 0, 0.5);
 }
 
 .Main .container .navigation {
@@ -23,43 +49,65 @@
   left: 0;
   top: 0;
   height: 100vh;
-  width: 240px; /* Default expanded width */
+  width: 80px;
   background-color: #15171b;
-  transition: all 0.3s ease;
   z-index: 100;
   display: flex;
   flex-direction: column;
+  transition: width 0.3s ease;
 }
 
-/* Brand/Logo styles */
+.Main .container .navigation:hover {
+  width: 240px;
+}
+
 .Main .container .navigation .brand {
   padding: 24px;
   color: #61dafb;
-  font-size: 24px;
+  font-size: 1.5rem;
   font-weight: bold;
   white-space: nowrap;
+  overflow: hidden;
 }
 
 .Main .container .navigation ul {
   list-style: none;
   padding: 0;
   margin: 0;
+  display: flex;
+  flex-direction: column;
 }
 
 .Main .container .navigation ul li {
   padding: 16px 24px;
-  transition: background-color 0.2s ease;
   display: flex;
   align-items: center;
+  color: #61dafb;
 }
 
 .Main .container .navigation ul li a {
   text-decoration: none;
   color: #61dafb;
+  font-size: 1.1rem;
+  cursor: pointer;
   display: flex;
   align-items: center;
   gap: 12px;
-  font-size: 16px;
+  white-space: nowrap;
+}
+
+.Main .container .navigation ul li a span {
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.Main .container .navigation:hover ul li a span {
+  opacity: 1;
+}
+
+.Main .container .navigation ul li.active a,
+.Main .container .navigation ul li:hover a {
+  color: white;
 }
 
 .Main .container .navigation ul li.active,
@@ -67,54 +115,17 @@
   background: #353a43;
 }
 
-/* Minimized state */
-.Main .container .navigation.minimized {
-  width: 80px;
-}
 
-.Main .container .navigation.minimized:hover {
-  width: 240px;
-}
-
-.Main .container .navigation.minimized ~ .outlet {
-  margin-left: 80px;
-}
-
-.Main .container .navigation.minimized .brand {
-  font-size: 0;
-  padding: 24px 0;
-}
-
-.Main .container .navigation.minimized:hover .brand {
-  font-size: 24px;
-  padding: 24px;
-}
-
-/* Icons for navigation items */
-.Main .container .navigation ul li a:before {
+.Main .container .navigation ul li:nth-child(1) a::before {
   content: '🎬';
-  min-width: 24px;
-  text-align: center;
 }
 
-.Main .container .navigation ul li.logout a:before {
+.Main .container .navigation ul li.logout a::before {
   content: '⟲';
 }
 
-.Main .container .navigation.minimized ul li {
-  padding: 16px;
-  justify-content: center;
-}
-
-.Main .container .navigation.minimized:hover ul li {
-  padding: 16px 24px;
-  justify-content: flex-start;
-}
-
-.Main .container .navigation.minimized ul li a span {
-  display: none;
-}
-
-.Main .container .navigation.minimized:hover ul li a span {
-  display: inline;
+.Main .container .navigation ul li a::before {
+  min-width: 24px;
+  text-align: center;
+  margin-right: 12px;
 }

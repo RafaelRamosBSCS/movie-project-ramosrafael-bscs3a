@@ -157,12 +157,13 @@ const Home = () => {
             className={`hero-backdrop ${isFading ? "fade-out" : "fade-in"}`}
             style={{
               backgroundImage: `linear-gradient(to top, #111 10%, transparent 90%),
-                               url(${
-                                 featuredMovie.backdropPath !==
-                                 "https://image.tmdb.org/t/p/original/undefined"
-                                   ? featuredMovie.backdropPath
-                                   : featuredMovie.posterPath
-                               })`,
+              url(${
+                featuredMovie.backdropPath
+                  ? `https://image.tmdb.org/t/p/w1280${featuredMovie.backdropPath}`
+                  : featuredMovie.posterPath
+                    ? `https://image.tmdb.org/t/p/w780${featuredMovie.posterPath}`
+                    : ''
+              })`,
             }}
           >
             <div className="hero-content">

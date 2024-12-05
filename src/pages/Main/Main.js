@@ -1,11 +1,10 @@
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { Outlet, useNavigate } from 'react-router-dom';
 import './Main.css';
 
 function Main() {
   const accessToken = localStorage.getItem('accessToken');
   const navigate = useNavigate();
-  const [isMinimized, setIsMinimized] = useState(true);
 
   const handleLogout = () => {
     localStorage.removeItem('accessToken');
@@ -25,9 +24,10 @@ function Main() {
   return (
     <div className='Main'>
       <div className='container'>
-        <div className={`navigation ${isMinimized ? 'minimized' : ''}`}>
+        <div className='navigation'>
           <div className="brand">
-            MovieApp
+            <h1>Lumina:</h1>
+            <h1>Administrator</h1>
           </div>
           <ul>
             <li>

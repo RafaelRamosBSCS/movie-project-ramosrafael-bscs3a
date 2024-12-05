@@ -27,7 +27,7 @@ function MainClient() {
       <div className='container'>
         <div className='navigation'>
           <div className="brand">
-            <h1>MovieApp</h1>
+            <h1>Lumina</h1>
           </div>
           <ul>
             <li>
