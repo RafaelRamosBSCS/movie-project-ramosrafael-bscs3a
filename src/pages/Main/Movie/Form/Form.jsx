@@ -819,24 +819,25 @@ const Form = () => {
   </div>
 </section>
 
-          {/* Photos Section */}
-          <section className="content-section">
+<section className="content-section">
   <h2 className="section-title">Photos</h2>
 
-  {/* Only show current photos when editing */}
+  {/* Current Photos - Only shown when editing */}
   {movieId && existingPhotos.length > 0 && (
-    <div className="media-column">
-      <h3 className="column-title">Current Photos</h3>
-      <div className="media-grid">
+    <div className="collapsible-section">
+      <h3 className="section-subtitle">Current Photos</h3>
+      <div className="photos-grid">
         {existingPhotos.map((photo) => (
-          <div key={photo.id} className="media-card">
-            <div className="media-preview">
+          <div key={photo.id} className="photo-card">
+            <div className="photo-image">
               <img src={photo.url} alt="Movie Scene" />
             </div>
-            <div className="media-info">
-              <button onClick={() => handleDeletePhoto(photo.id)} className="action-button delete">
-                Delete
-              </button>
+            <div className="photo-details">
+              <div className="photo-actions">
+                <button onClick={() => handleDeletePhoto(photo.id)}>
+                  Delete Photo
+                </button>
+              </div>
             </div>
           </div>
         ))}
@@ -844,7 +845,7 @@ const Form = () => {
     </div>
   )}
 
-  
+  {/* Available Photos */}
   <div className="collapsible-section">
     <div 
       className="collapsible-header"
@@ -854,31 +855,43 @@ const Form = () => {
       <span>{isImagesExpanded ? '▼' : '▶'}</span>
     </div>
     <div className={`collapsible-content ${isImagesExpanded ? 'expanded' : ''}`}>
-      <div className="media-list">
+      <div className="photo-grid">
         {images.map((image) => (
-          <div key={image.file_path} className="media-item">
-            <div className="media-preview">
+          <div key={image.file_path} className="photo-item">
+            <div className="photo-preview">
               <img
                 src={`https://image.tmdb.org/t/p/w500/${image.file_path}`}
                 alt="Movie Scene"
               />
             </div>
-            <div className="media-info">
-              <button 
-                onClick={() => {
-                  setSelectedImage(image);
-                  alert("Image selected!");
-                }}
-                className="action-button select"
-              >
-                Select
-              </button>
+            <div className="photo-info">
+              <div className="photo-actions">
+                <button 
+                  onClick={() => {
+                    setSelectedImage(image);
+                    alert("Image selected successfully");
+                  }}
+                >
+                  Select Photo
+                </button>
+              </div>
             </div>
           </div>
         ))}
       </div>
     </div>
   </div>
+  
+  {movieId && selectedImage && (
+    <div className="section-actions">
+      <button 
+        onClick={() => handleAddImage2Edit(movieId)} 
+        className="primary-button"
+      >
+        Add Selected Photo
+      </button>
+    </div>
+  )}
 </section>
 
           
