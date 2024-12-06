@@ -9,7 +9,7 @@ function View() {
   const { movie, setMovie } = useMovieContext();
   const { movieId } = useParams();
   const navigate = useNavigate();
-  const [isExpanded, setIsExpanded] = useState(false);
+  const [isExpanded] = useState(false);
 
   useEffect(() => {
     if (movieId !== undefined) {
@@ -105,7 +105,7 @@ function View() {
 
           {movie.casts && movie.casts.length > 0 && (
             <section className="content-section cast-section">
-              <h2 className="section-title">Cast & Crew</h2>
+              <h2 className="section-title">Cast</h2>
               <div className={`cast-grid ${isExpanded ? "expanded" : ""}`}>
                 {movie.casts.map((cast, index) => (
                   <div key={index} className="cast-card">
@@ -124,12 +124,6 @@ function View() {
                   </div>
                 ))}
               </div>
-              <button
-                className="expand-button"
-                onClick={() => setIsExpanded(!isExpanded)}
-              >
-                {isExpanded ? "Show Less" : "Show More"}
-              </button>
             </section>
           )}
         </>

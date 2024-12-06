@@ -750,8 +750,10 @@ const Form = () => {
                     >
                       Create Movie
                     </button>
+                    
                   )}
                 </div>
+                <text>When Creating, Casts will be automatically added, wait after Videos/Photos prompts are done.</text>
               </div>
             </div>
           </form>
@@ -958,7 +960,7 @@ const Form = () => {
                   onClick={() => handleDeletePhoto(movieId)}
                   className="action-button delete-button"
                 >
-                  Delete Photo
+                  Delete All Photos
                 </button>
               </div>
             )}

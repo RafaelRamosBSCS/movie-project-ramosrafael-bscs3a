@@ -158,7 +158,7 @@ const Home = () => {
 
         setFeaturedMovie(movieList[random]);
         setIsFading(false);
-      }, 1900);
+      }, 2100);
     };
 
     const startLoop = () => {
