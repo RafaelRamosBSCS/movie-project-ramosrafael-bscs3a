@@ -122,11 +122,14 @@ const Home = () => {
         const sortedByVoteAverage = [...response.data].sort(
           (a, b) => b.voteAverage - a.voteAverage
         );
+        const sortedByRecent = [...response.data].sort(
+          (a, b) => b.id - a.id
+        );
 
         setCategories({
-          trending: sortedByPopularity.slice(0, 6),
-          topRated: sortedByVoteAverage.slice(0, 6),
-          recent: response.data.slice(0, 6),
+          trending: sortedByPopularity.slice(0, 10),
+          topRated: sortedByVoteAverage.slice(0, 10),
+          recent: sortedByRecent.slice(0, 10),
         });
       })
       .catch((e) => console.log(e));

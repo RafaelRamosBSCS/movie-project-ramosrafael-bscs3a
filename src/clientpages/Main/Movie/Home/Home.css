@@ -95,6 +95,16 @@
   padding: 0 4rem;
 }
 
+.content-rows h2.row-title {
+  font-size: 1.5rem;
+  font-weight: 500;
+  background: linear-gradient(135deg, #2193b0 0%, #6dd5ed 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  display: inline-block;
+}
+
 .movie-row {
   margin-bottom: 3rem;
 }
@@ -109,6 +119,11 @@
 .row-title {
   font-size: 1.5rem;
   font-weight: 500;
+  background: linear-gradient(135deg, #2193b0 0%, #6dd5ed 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  display: inline-block;
 }
 
 .row-navigation {
