@@ -1,5 +1,5 @@
 import * as React from 'react';
-// import * as ReactDOM from 'react-dom/client'; 
+import * as ReactDOM from 'react-dom/client'; 
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import './index.css';
 import Login from './pages/Public/Login/Login';
@@ -12,6 +12,7 @@ import Home from './clientpages/Main/Movie/Home/Home';
 import View from './clientpages/Main/Movie/View/View';
 import MovieContextProvider from './context/MovieContext';
 import Register from './pages/Public/Register/Register';
+import Form from './pages/Main/Movie/Form/Form';
 
 
 const router = createBrowserRouter([
@@ -38,26 +39,36 @@ const router = createBrowserRouter([
     element: <Register />,
   },
   {
-    path: '/admin',
+    path: '/main',
     element: <Main />,
     children: [
       {
-        path: '/admin/dashboard',
+        path: '/main/dashboard',
         element: <Dashboard />,
       },
       {
-        path: '/admin/movies',
+        path: '/main/movies',
         element: <Movie />,
         children: [
           {
-            path: '/admin/movies',
+            path: '/main/movies',
             element: <Lists />,
           },
+          // Add these routes for Form
+          {
+            path: '/main/movies/form',
+            element: <Form />,
+          },
+          {
+            path: '/main/movies/form/:movieId',
+            element: <Form />,
+          }
         ],
       },
     ],
   },
 ]);
+
 
 function App() {
   return (

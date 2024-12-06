@@ -30,6 +30,11 @@ function Main() {
             <h1>Administrator</h1>
           </div>
           <ul>
+          <li>
+              <a onClick={() => navigate("/")}>
+                <span>Home</span>
+              </a>
+            </li>
             <li>
               <a onClick={() => navigate("/main/dashboard")}>
                 <span>Dashboard</span>

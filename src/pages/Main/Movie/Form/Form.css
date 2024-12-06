@@ -306,7 +306,7 @@
 }
 
 .cast-item {
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(151, 134, 134, 0.05);
   border-radius: 8px;
   overflow: hidden;
   transition: transform 0.2s ease;

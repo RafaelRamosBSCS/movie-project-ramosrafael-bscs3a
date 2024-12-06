@@ -148,7 +148,6 @@
   left: 0;
   right: 0;
   height: 150px;
-  background: linear-gradient(to bottom, rgba(17, 17, 17, 0), rgba(17, 17, 17, 1));
   pointer-events: none;
 }
 

@@ -45,7 +45,7 @@ function Login() {
     setStatus("loading");
 
     const loginAttempts = [
-      { url: "/admin/login", role: "admin", successRoute: "/admin/movies" },
+      { url: "/admin/login", role: "admin", successRoute: "/main/movies" },
       { url: "/user/login", role: "user", successRoute: "/" },
     ];
 
