@@ -168,6 +168,32 @@
   gap: 2rem;
 }
 
+.media-section {
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 12px;
+  margin-bottom: 2rem;
+}
+
+.media-header {
+  padding: 1rem 1.5rem;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 12px 12px 0 0;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.media-content {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease-out;
+}
+
+.media-content.expanded {
+  max-height: none;
+}
+
 .media-column {
   background: rgba(255, 255, 255, 0.03);
   border-radius: 12px;
@@ -227,14 +253,14 @@
 .media-preview {
   width: 200px;
   aspect-ratio: 16/9;
-  overflow: hidden;
 }
 
-.media-preview iframe,
-.media-preview img {
+.media-preview img,
+.media-preview iframe {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  border-radius: 4px;
 }
 
 .media-info {
@@ -332,9 +358,29 @@
 
 .cast-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(4, 1fr);
   gap: 1.5rem;
   padding: 1.5rem;
+  max-height: 600px;
+  overflow-y: auto;
+}
+
+.cast-grid::-webkit-scrollbar {
+  width: 8px;
+}
+
+.cast-grid::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 4px;
+}
+
+.cast-grid::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+}
+
+.cast-grid::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.3);
 }
 
 .cast-preview {
@@ -375,23 +421,36 @@
   text-align: center;
 }
 
+.cast-details h4 {
+  margin: 0 0 0.5rem 0;
+  font-size: 1.1rem;
+  color: #fff;
+}
+
+.cast-details p {
+  margin: 0;
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.7);
+}
+
 .photos-container .collapsible-content {
   padding: 1.5rem;
 }
 
 .photos-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 20px;
-  width: 100%;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.5rem;
+  padding: 1.5rem;
+  max-height: 600px;
+  overflow-y: auto;
 }
 
 .photo-card {
   background: rgba(255, 255, 255, 0.05);
-  border-radius: 8px;
+  border-radius: 12px;
   overflow: hidden;
   transition: transform 0.2s ease;
-  height: fit-content;
 }
 
 .photo-card:hover {
@@ -399,27 +458,26 @@
 }
 
 .photo-image {
-  position: relative;
-  width: 100%;
-  padding-top: 56.25%; /* 16:9 Aspect Ratio */
+  aspect-ratio: 1;
+  overflow: hidden;
 }
 
 .photo-image img {
-  position: absolute;
-  top: 0;
-  left: 0;
   width: 100%;
   height: 100%;
   object-fit: cover;
 }
 
 .photo-details {
-  padding: 12px;
+  padding: 1rem;
+  text-align: center;
 }
+
 
 .photo-actions {
   display: flex;
   justify-content: center;
+  gap: 0.5rem;
 }
 
 .photo-actions button {

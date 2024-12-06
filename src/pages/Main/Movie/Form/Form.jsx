@@ -1,15 +1,14 @@
 import axios from "axios";
 import { useCallback, useEffect, useState } from "react";
-import { Outlet, useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import "./Form.css";
-import { useMovieContext } from "../../../../context/MovieContext";
 
 const Form = () => {
   const [query, setQuery] = useState("");
   const [isCastAdded, setIsCastAdded] = useState(false);
   const [searchedMovieList, setSearchedMovieList] = useState([]);
   const [selectedMovie, setSelectedMovie] = useState(undefined);
-  const [movie, setMovie] = useState(undefined);
+  const [movie, setMovie] = useState(undefined); // "movie is being used"
   const [videos, setVideos] = useState([]);
   const [images, setImages] = useState([]);
   const navigate = useNavigate();
@@ -21,6 +20,8 @@ const Form = () => {
   const [isImagesExpanded, setIsImagesExpanded] = useState(false);
   const [isVideoExpanded, setIsVideoExpanded] = useState(false);
   const [isCastExpanded, setIsCastExpanded] = useState(false);
+  const [isCurrentVideosExpanded, setIsCurrentVideosExpanded] = useState(false);
+  const [isCurrentPhotosExpanded, setIsCurrentPhotosExpanded] = useState(false);  
 
   // const { accessToken, userId } = useMovieContext();
   const accessToken = localStorage.getItem("accessToken");
@@ -280,11 +281,11 @@ const Form = () => {
     }
   };
 
-  const handleDeleteVideo = async (movieId) => {
+  const handleDeleteVideo = async (videoid) => {
     try {
       await axios({
         method: "delete",
-        url: `/videos/${movieId}`,
+        url: `/videos/${videoid}`,
         headers: {
           Authorization: `Bearer ${accessToken}`,
         },
@@ -493,6 +494,7 @@ const Form = () => {
 
   useEffect(() => {
     if (movieId) {
+      
       fetchExistingVideos();
       fetchExistingPhotos();
     }
@@ -552,6 +554,7 @@ const Form = () => {
           );
 
           setVideos(validVideos.length > 0 ? validVideos : "");
+          setVideos(videoResults.length > 0 ? videoResults : []);
 
           const backdrops = imageResponse.data.backdrops || [];
           const posters = imageResponse.data.posters || [];
@@ -757,40 +760,47 @@ const Form = () => {
           <section className="content-section">
   <h2 className="section-title">Videos</h2>
   
-  
+  {/* Current Videos */}
   {movieId && existingVideos.length > 0 && (
-    <div className="media-column">
-      <h3 className="column-title">Current Videos</h3>
-      <div className="media-grid">
-        {existingVideos.map((video) => (
-          <div key={video.id} className="media-card">
-            <div className="media-preview">
-              <iframe src={video.url} title={video.name} frameBorder="0" allowFullScreen />
+    <div className="media-section">
+      <div 
+        className="media-header"
+        onClick={() => setIsCurrentVideosExpanded(!isCurrentVideosExpanded)}
+      >
+        <h3>Current Videos</h3>
+        <span>{isCurrentVideosExpanded ? '▼' : '▶'}</span>
+      </div>
+      <div className={`media-content ${isCurrentVideosExpanded ? 'expanded' : ''}`}>
+        <div className="media-list">
+          {existingVideos.map((video) => (
+            <div key={video.id} className="media-item">
+              <div className="media-preview">
+                <iframe src={video.url} title={video.name} frameBorder="0" allowFullScreen />
+              </div>
+              <div className="media-info">
+                <h4>{video.name}</h4>
+                <div className="media-actions">
+                </div>
+              </div>
             </div>
-            <div className="media-info">
-              <h4>{video.name}</h4>
-              <button onClick={() => handleDeleteVideo(video.id)} className="action-button delete">
-                Delete
-              </button>
-            </div>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
     </div>
   )}
 
   {/* Available Videos */}
-  <div className="collapsible-section">
+  <div className="media-section">
     <div 
-      className="collapsible-header"
+      className="media-header"
       onClick={() => setIsVideoExpanded(!isVideoExpanded)}
     >
       <h3>Available Videos</h3>
       <span>{isVideoExpanded ? '▼' : '▶'}</span>
     </div>
-    <div className={`collapsible-content ${isVideoExpanded ? 'expanded' : ''}`}>
-      <div className="media-list">
-        {videos.map((video) => (
+    <div className={`media-content ${isVideoExpanded ? 'expanded' : ''}`}>
+      <div className="media-list" style={{ maxHeight: '600px', overflowY: 'auto' }}>
+        {Array.isArray(videos) && videos.map((video) => (
           <div key={video.id} className="media-item">
             <div className="media-preview">
               <iframe
@@ -802,41 +812,15 @@ const Form = () => {
             </div>
             <div className="media-info">
               <h4>{video.name}</h4>
-              <button 
-                onClick={() => {
-                  setSelectedVideo(video);
-                  alert("Video selected!");
-                }}
-                className="action-button select"
-              >
-                Select
-              </button>
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
-  </div>
-</section>
-
-{/* Photos Section */}
-<section className="content-section photos-container">
-  <h2 className="section-title">Photos</h2>
-
-  {/* Current Photos - Only shown when editing */}
-  {movieId && existingPhotos.length > 0 && (
-    <div className="collapsible-section">
-      <h3 className="section-subtitle">Current Photos</h3>
-      <div className="photos-grid">
-        {existingPhotos.map((photo) => (
-          <div key={photo.id} className="photo-card">
-            <div className="photo-image">
-              <img src={photo.url} alt="Movie Scene" />
-            </div>
-            <div className="photo-details">
-              <div className="photo-actions">
-                <button onClick={() => handleDeletePhoto(photo.id)}>
-                  Delete Photo
+              <div className="media-actions">
+                <button 
+                  onClick={() => {
+                    setSelectedVideo(video);
+                    alert("Video selected!");
+                  }}
+                  className="action-button select-button"
+                >
+                  Select
                 </button>
               </div>
             </div>
@@ -844,34 +828,84 @@ const Form = () => {
         ))}
       </div>
     </div>
+  </div>
+
+  {/* Add Selected Video Button */}
+  {selectedVideo && movieId && (
+    <div className="section-actions">
+      <button 
+        onClick={() => handleAddVideo2Edit(movieId)} 
+        className="action-button select-button"
+      >
+        Add Selected Video
+      </button>
+      <button onClick={() => handleDeleteVideo(movieId)} className="action-button delete-button">
+                    Delete All Videos
+                  </button>
+    </div>
+  )}
+</section>
+
+{/* Photos Section */}
+<section className="content-section">
+  <h2 className="section-title">Photos</h2>
+  
+  {/* Current Photos */}
+  {movieId && existingPhotos.length > 0 && (
+    <div className="media-section">
+      <div 
+        className="media-header"
+        onClick={() => setIsCurrentPhotosExpanded(!isCurrentPhotosExpanded)}
+      >
+        <h3>Current Photos</h3>
+        <span>{isCurrentPhotosExpanded ? '▼' : '▶'}</span>
+      </div>
+      <div className={`media-content ${isCurrentPhotosExpanded ? 'expanded' : ''}`}>
+        <div className="media-list">
+          {existingPhotos.map((photo) => (
+            <div key={photo.id} className="media-item">
+              <div className="media-preview">
+                <img src={photo.url} alt="Movie Scene" />
+              </div>
+              <div className="media-info">
+                <div className="media-actions">
+                </div>
+              </div>
+            </div>
+            
+          ))}
+        </div>
+      </div>
+    </div>
   )}
 
   {/* Available Photos */}
-  <div className="collapsible-section">
+  <div className="media-section">
     <div 
-      className="collapsible-header"
+      className="media-header"
       onClick={() => setIsImagesExpanded(!isImagesExpanded)}
     >
       <h3>Available Photos</h3>
       <span>{isImagesExpanded ? '▼' : '▶'}</span>
     </div>
-    <div className={`collapsible-content ${isImagesExpanded ? 'expanded' : ''}`}>
-      <div className="photos-grid">
-        {images.map((image) => (
-          <div key={image.file_path} className="photo-card">
-            <div className="photo-image">
+    <div className={`media-content ${isImagesExpanded ? 'expanded' : ''}`}>
+      <div className="media-list">
+        {images && Array.isArray(images) && images.map((image) => (
+          <div key={image.file_path} className="media-item">
+            <div className="media-preview">
               <img
                 src={`https://image.tmdb.org/t/p/w500/${image.file_path}`}
                 alt="Movie Scene"
               />
             </div>
-            <div className="photo-details">
-              <div className="photo-actions">
+            <div className="media-info">
+              <div className="media-actions">
                 <button 
                   onClick={() => {
                     setSelectedImage(image);
                     alert("Image selected successfully");
                   }}
+                  className="action-button select-button"
                 >
                   Select Photo
                 </button>
@@ -882,64 +916,64 @@ const Form = () => {
       </div>
     </div>
   </div>
-  
-  {movieId && selectedImage && (
+
+  {/* Add Selected Photo Button */}
+  {selectedImage && movieId && (
     <div className="section-actions">
       <button 
         onClick={() => handleAddImage2Edit(movieId)} 
-        className="primary-button"
+        className="action-button select-button"
       >
         Add Selected Photo
       </button>
+      <button 
+                    onClick={() => handleDeletePhoto(movieId)}
+                    className="action-button delete-button"
+                  >
+                    Delete Photo
+                  </button>
     </div>
   )}
 </section>
 
           
-          <section className="content-section">
-  <h2 className="section-title">Cast Members</h2>
-  
-  <div className="collapsible-section">
-    <div 
-      className="collapsible-header"
-      onClick={() => setIsCastExpanded(!isCastExpanded)}
-    >
-      <h3>Available Cast</h3>
-      <span>{isCastExpanded ? '▼' : '▶'}</span>
-    </div>
-    <div className={`collapsible-content ${isCastExpanded ? 'expanded' : ''}`}>
-      <div className="media-list">
-        {credits.Acting.map((actor) => (
-          <div key={actor.credit_id} className="media-item">
-            <div className="media-preview">
-              <img
-                src={
-                  actor.profile_path
-                    ? `https://image.tmdb.org/t/p/w185${actor.profile_path}`
-                    : "https://via.placeholder.com/150x150.png?text=No+Image"
-                }
-                alt={actor.name}
-              />
+{!movieId && (
+  <section className="content-section">
+    <h2 className="section-title">Cast Members</h2>
+    
+    <div className="media-section">
+      <div 
+        className="media-header"
+        onClick={() => setIsCastExpanded(!isCastExpanded)}
+      >
+        <h3>Cast List</h3>
+        <span>{isCastExpanded ? '▼' : '▶'}</span>
+      </div>
+      <div className={`media-content ${isCastExpanded ? 'expanded' : ''}`}>
+        <div className="cast-grid">
+          {credits.Acting.map((actor) => (
+            <div key={actor.credit_id} className="cast-card">
+              <div className="cast-image">
+                <img
+                  src={
+                    actor.profile_path
+                      ? `https://image.tmdb.org/t/p/w185${actor.profile_path}`
+                      : "https://via.placeholder.com/150x150.png?text=No+Image"
+                  }
+                  alt={actor.name}
+                />
+              </div>
+              <div className="cast-details">
+                <h4>{actor.name}</h4>
+                <p>as {actor.character}</p>
+              </div>
             </div>
-            <div className="media-info">
-              <h4>{actor.name}</h4>
-              <p>as {actor.character}</p>
-            </div>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
     </div>
-  </div>
-
-  {!isCastAdded && (
-    <button
-      onClick={() => handleAddCast(selectedMovie?.id)}
-      className="action-button add-all"
-    >
-      Add All Cast Members
-    </button>
-  )}
-</section>
+  </section>
+)}
         </>
       )}
     </div>

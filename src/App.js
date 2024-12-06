@@ -12,7 +12,8 @@ import MainClient from './clientpages/Main/MainClient';
 import Home from './clientpages/Main/Movie/Home/Home';
 import View from './clientpages/Main/Movie/View/View';
 import MovieContextProvider from './context/MovieContext';
-import Register from './pages/Public/Register/Register'
+import Register from './pages/Public/Register/Register';
+
 
 const router = createBrowserRouter([
   {
