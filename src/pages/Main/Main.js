@@ -31,6 +31,11 @@ function Main() {
           </div>
           <ul>
             <li>
+              <a onClick={() => navigate('/main/dashboard')}>
+                <span>Dashboard</span>
+              </a>
+            </li>
+            <li>
               <a onClick={() => navigate('/main/movies')}>
                 <span>Movies</span>
               </a>
