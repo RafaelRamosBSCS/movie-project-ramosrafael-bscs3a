@@ -1,15 +1,24 @@
 import { useEffect } from "react";
 import { Outlet, useNavigate } from "react-router-dom";
 import "./Main.css";
+// import { useMovieContext } from "../../context/MovieContext";
 
 function Main() {
+  // const {accessToken, userRole} = useMovieContext();
   const accessToken = localStorage.getItem("accessToken");
+  const userRole = localStorage.getItem("userRole");
   const navigate = useNavigate();
 
   const handleLogout = () => {
     localStorage.removeItem("accessToken");
     navigate("/");
   };
+
+  useEffect(() => {
+    if (!accessToken || !userRole || userRole !== "admin") {
+      navigate("/");
+    }
+  }, [accessToken, userRole, navigate]);
 
   useEffect(() => {
     if (

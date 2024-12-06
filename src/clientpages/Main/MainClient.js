@@ -4,6 +4,7 @@ import "./MainClient.css";
 
 function MainClient() {
   const accessToken = localStorage.getItem("accessToken");
+  const userRole = localStorage.getItem("userRole");
   const navigate = useNavigate();
 
   const handleLogout = () => {
@@ -16,12 +17,6 @@ function MainClient() {
     }
   };
 
-  useEffect(() => {
-    if (!accessToken) {
-      navigate("/");
-    }
-  }, [accessToken, navigate]);
-
   return (
     <div className="Main">
       <div className="container">
@@ -31,25 +26,38 @@ function MainClient() {
           </div>
           <ul>
             <li>
-              <a onClick={() => navigate("/")}>
+              <a href="#" onClick={(e) => {
+                e.preventDefault();
+                navigate("/");
+              }}>
                 <span>Movies</span>
               </a>
             </li>
+            {userRole === "admin" && (
+              <li>
+                <a href="#" onClick={(e) => {
+                  e.preventDefault();
+                  navigate("/main/movies");
+                }}>
+                  <span>Admin Panel</span>
+                </a>
+              </li>
+            )}
             {accessToken ? (
               <li className="logout">
-                <a
-                  href="#"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    handleLogout();
-                  }}
-                >
+                <a href="#" onClick={(e) => {
+                  e.preventDefault();
+                  handleLogout();
+                }}>
                   <span>Logout</span>
                 </a>
               </li>
             ) : (
               <li className="login">
-                <a onClick={() => navigate("/login")}>
+                <a href="#" onClick={(e) => {
+                  e.preventDefault();
+                  navigate("/login");
+                }}>
                   <span>Login</span>
                 </a>
               </li>
