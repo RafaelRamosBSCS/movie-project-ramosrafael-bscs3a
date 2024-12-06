@@ -2,13 +2,14 @@ import axios from "axios";
 import { useCallback, useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import "./Form.css";
+import { useMovieContext } from "../../../../context/MovieContext";
 
 const Form = () => {
   const [query, setQuery] = useState("");
   const [isCastAdded, setIsCastAdded] = useState(false);
   const [searchedMovieList, setSearchedMovieList] = useState([]);
   const [selectedMovie, setSelectedMovie] = useState(undefined);
-  const [movie, setMovie] = useState(undefined); // "movie is being used"
+  const [movie, setMovie] = useState(undefined); // "movie" IS BEING USED!!!
   const [videos, setVideos] = useState([]);
   const [images, setImages] = useState([]);
   const navigate = useNavigate();
@@ -21,10 +22,10 @@ const Form = () => {
   const [isVideoExpanded, setIsVideoExpanded] = useState(false);
   const [isCastExpanded, setIsCastExpanded] = useState(false);
   const [isCurrentVideosExpanded, setIsCurrentVideosExpanded] = useState(false);
-  const [isCurrentPhotosExpanded, setIsCurrentPhotosExpanded] = useState(false);  
+  const [isCurrentPhotosExpanded, setIsCurrentPhotosExpanded] = useState(false);
 
-  // const { accessToken, userId } = useMovieContext();
-  const accessToken = localStorage.getItem("accessToken");
+  const { accessToken, userId } = useMovieContext(); //USERID IS ALSO BEING USED!!!
+  // const accessToken = localStorage.getItem("accessToken");
 
   const [credits, setCredits] = useState({
     Acting: [],
@@ -492,9 +493,8 @@ const Form = () => {
     }
   };
 
-  useEffect(() => {
+  useEffect(() => { // THESE ARE BEING USED!!!1
     if (movieId) {
-      
       fetchExistingVideos();
       fetchExistingPhotos();
     }
@@ -756,224 +756,255 @@ const Form = () => {
             </div>
           </form>
 
-          
           <section className="content-section">
-  <h2 className="section-title">Videos</h2>
-  
-  {/* Current Videos */}
-  {movieId && existingVideos.length > 0 && (
-    <div className="media-section">
-      <div 
-        className="media-header"
-        onClick={() => setIsCurrentVideosExpanded(!isCurrentVideosExpanded)}
-      >
-        <h3>Current Videos</h3>
-        <span>{isCurrentVideosExpanded ? '▼' : '▶'}</span>
-      </div>
-      <div className={`media-content ${isCurrentVideosExpanded ? 'expanded' : ''}`}>
-        <div className="media-list">
-          {existingVideos.map((video) => (
-            <div key={video.id} className="media-item">
-              <div className="media-preview">
-                <iframe src={video.url} title={video.name} frameBorder="0" allowFullScreen />
-              </div>
-              <div className="media-info">
-                <h4>{video.name}</h4>
-                <div className="media-actions">
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-    </div>
-  )}
+            <h2 className="section-title">Videos</h2>
 
-  {/* Available Videos */}
-  <div className="media-section">
-    <div 
-      className="media-header"
-      onClick={() => setIsVideoExpanded(!isVideoExpanded)}
-    >
-      <h3>Available Videos</h3>
-      <span>{isVideoExpanded ? '▼' : '▶'}</span>
-    </div>
-    <div className={`media-content ${isVideoExpanded ? 'expanded' : ''}`}>
-      <div className="media-list" style={{ maxHeight: '600px', overflowY: 'auto' }}>
-        {Array.isArray(videos) && videos.map((video) => (
-          <div key={video.id} className="media-item">
-            <div className="media-preview">
-              <iframe
-                src={`https://www.youtube.com/embed/${video.key}`}
-                title={video.name}
-                frameBorder="0"
-                allowFullScreen
-              />
-            </div>
-            <div className="media-info">
-              <h4>{video.name}</h4>
-              <div className="media-actions">
-                <button 
-                  onClick={() => {
-                    setSelectedVideo(video);
-                    alert("Video selected!");
-                  }}
-                  className="action-button select-button"
-                >
-                  Select
-                </button>
-              </div>
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
-  </div>
-
-  {/* Add Selected Video Button */}
-  {selectedVideo && movieId && (
-    <div className="section-actions">
-      <button 
-        onClick={() => handleAddVideo2Edit(movieId)} 
-        className="action-button select-button"
-      >
-        Add Selected Video
-      </button>
-      <button onClick={() => handleDeleteVideo(movieId)} className="action-button delete-button">
-                    Delete All Videos
-                  </button>
-    </div>
-  )}
-</section>
-
-{/* Photos Section */}
-<section className="content-section">
-  <h2 className="section-title">Photos</h2>
-  
-  {/* Current Photos */}
-  {movieId && existingPhotos.length > 0 && (
-    <div className="media-section">
-      <div 
-        className="media-header"
-        onClick={() => setIsCurrentPhotosExpanded(!isCurrentPhotosExpanded)}
-      >
-        <h3>Current Photos</h3>
-        <span>{isCurrentPhotosExpanded ? '▼' : '▶'}</span>
-      </div>
-      <div className={`media-content ${isCurrentPhotosExpanded ? 'expanded' : ''}`}>
-        <div className="media-list">
-          {existingPhotos.map((photo) => (
-            <div key={photo.id} className="media-item">
-              <div className="media-preview">
-                <img src={photo.url} alt="Movie Scene" />
-              </div>
-              <div className="media-info">
-                <div className="media-actions">
-                </div>
-              </div>
-            </div>
-            
-          ))}
-        </div>
-      </div>
-    </div>
-  )}
-
-  {/* Available Photos */}
-  <div className="media-section">
-    <div 
-      className="media-header"
-      onClick={() => setIsImagesExpanded(!isImagesExpanded)}
-    >
-      <h3>Available Photos</h3>
-      <span>{isImagesExpanded ? '▼' : '▶'}</span>
-    </div>
-    <div className={`media-content ${isImagesExpanded ? 'expanded' : ''}`}>
-      <div className="media-list">
-        {images && Array.isArray(images) && images.map((image) => (
-          <div key={image.file_path} className="media-item">
-            <div className="media-preview">
-              <img
-                src={`https://image.tmdb.org/t/p/w500/${image.file_path}`}
-                alt="Movie Scene"
-              />
-            </div>
-            <div className="media-info">
-              <div className="media-actions">
-                <button 
-                  onClick={() => {
-                    setSelectedImage(image);
-                    alert("Image selected successfully");
-                  }}
-                  className="action-button select-button"
-                >
-                  Select Photo
-                </button>
-              </div>
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
-  </div>
-
-  {/* Add Selected Photo Button */}
-  {selectedImage && movieId && (
-    <div className="section-actions">
-      <button 
-        onClick={() => handleAddImage2Edit(movieId)} 
-        className="action-button select-button"
-      >
-        Add Selected Photo
-      </button>
-      <button 
-                    onClick={() => handleDeletePhoto(movieId)}
-                    className="action-button delete-button"
-                  >
-                    Delete Photo
-                  </button>
-    </div>
-  )}
-</section>
-
-          
-{!movieId && (
-  <section className="content-section">
-    <h2 className="section-title">Cast Members</h2>
-    
-    <div className="media-section">
-      <div 
-        className="media-header"
-        onClick={() => setIsCastExpanded(!isCastExpanded)}
-      >
-        <h3>Cast List</h3>
-        <span>{isCastExpanded ? '▼' : '▶'}</span>
-      </div>
-      <div className={`media-content ${isCastExpanded ? 'expanded' : ''}`}>
-        <div className="cast-grid">
-          {credits.Acting.map((actor) => (
-            <div key={actor.credit_id} className="cast-card">
-              <div className="cast-image">
-                <img
-                  src={
-                    actor.profile_path
-                      ? `https://image.tmdb.org/t/p/w185${actor.profile_path}`
-                      : "https://via.placeholder.com/150x150.png?text=No+Image"
+            {/* Current Videos */}
+            {movieId && existingVideos.length > 0 && (
+              <div className="media-section">
+                <div
+                  className="media-header"
+                  onClick={() =>
+                    setIsCurrentVideosExpanded(!isCurrentVideosExpanded)
                   }
-                  alt={actor.name}
-                />
+                >
+                  <h3>Current Videos</h3>
+                  <span>{isCurrentVideosExpanded ? "▼" : "▶"}</span>
+                </div>
+                <div
+                  className={`media-content ${
+                    isCurrentVideosExpanded ? "expanded" : ""
+                  }`}
+                >
+                  <div className="media-list">
+                    {existingVideos.map((video) => (
+                      <div key={video.id} className="media-item">
+                        <div className="media-preview">
+                          <iframe
+                            src={video.url}
+                            title={video.name}
+                            frameBorder="0"
+                            allowFullScreen
+                          />
+                        </div>
+                        <div className="media-info">
+                          <h4>{video.name}</h4>
+                          <div className="media-actions"></div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
               </div>
-              <div className="cast-details">
-                <h4>{actor.name}</h4>
-                <p>as {actor.character}</p>
+            )}
+
+            {/* Available Videos */}
+            <div className="media-section">
+              <div
+                className="media-header"
+                onClick={() => setIsVideoExpanded(!isVideoExpanded)}
+              >
+                <h3>Available Videos</h3>
+                <span>{isVideoExpanded ? "▼" : "▶"}</span>
+              </div>
+              <div
+                className={`media-content ${isVideoExpanded ? "expanded" : ""}`}
+              >
+                <div
+                  className="media-list"
+                  style={{ maxHeight: "600px", overflowY: "auto" }}
+                >
+                  {Array.isArray(videos) &&
+                    videos.map((video) => (
+                      <div key={video.id} className="media-item">
+                        <div className="media-preview">
+                          <iframe
+                            src={`https://www.youtube.com/embed/${video.key}`}
+                            title={video.name}
+                            frameBorder="0"
+                            allowFullScreen
+                          />
+                        </div>
+                        <div className="media-info">
+                          <h4>{video.name}</h4>
+                          <div className="media-actions">
+                            <button
+                              onClick={() => {
+                                setSelectedVideo(video);
+                                alert("Video selected!");
+                              }}
+                              className="action-button select-button"
+                            >
+                              Select
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                </div>
               </div>
             </div>
-          ))}
-        </div>
-      </div>
-    </div>
-  </section>
-)}
+
+            {/* Add Selected Video Button */}
+            {selectedVideo && movieId && (
+              <div className="section-actions">
+                <button
+                  onClick={() => handleAddVideo2Edit(movieId)}
+                  className="action-button select-button"
+                >
+                  Add Selected Video
+                </button>
+                <button
+                  onClick={() => handleDeleteVideo(movieId)}
+                  className="action-button delete-button"
+                >
+                  Delete All Videos
+                </button>
+              </div>
+            )}
+          </section>
+
+          {/* Photos Section */}
+          <section className="content-section">
+            <h2 className="section-title">Photos</h2>
+
+            {/* Current Photos */}
+            {movieId && existingPhotos.length > 0 && (
+              <div className="media-section">
+                <div
+                  className="media-header"
+                  onClick={() =>
+                    setIsCurrentPhotosExpanded(!isCurrentPhotosExpanded)
+                  }
+                >
+                  <h3>Current Photos</h3>
+                  <span>{isCurrentPhotosExpanded ? "▼" : "▶"}</span>
+                </div>
+                <div
+                  className={`media-content ${
+                    isCurrentPhotosExpanded ? "expanded" : ""
+                  }`}
+                >
+                  <div className="media-list">
+                    {existingPhotos.map((photo) => (
+                      <div key={photo.id} className="media-item">
+                        <div className="media-preview">
+                          <img src={photo.url} alt="Movie Scene" />
+                        </div>
+                        <div className="media-info">
+                          <div className="media-actions"></div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Available Photos */}
+            <div className="media-section">
+              <div
+                className="media-header"
+                onClick={() => setIsImagesExpanded(!isImagesExpanded)}
+              >
+                <h3>Available Photos</h3>
+                <span>{isImagesExpanded ? "▼" : "▶"}</span>
+              </div>
+              <div
+                className={`media-content ${
+                  isImagesExpanded ? "expanded" : ""
+                }`}
+              >
+                <div className="media-list">
+                  {images &&
+                    Array.isArray(images) &&
+                    images.map((image) => (
+                      <div key={image.file_path} className="media-item">
+                        <div className="media-preview">
+                          <img
+                            src={`https://image.tmdb.org/t/p/w500/${image.file_path}`}
+                            alt="Movie Scene"
+                          />
+                        </div>
+                        <div className="media-info">
+                          <div className="media-actions">
+                            <button
+                              onClick={() => {
+                                setSelectedImage(image);
+                                alert("Image selected successfully");
+                              }}
+                              className="action-button select-button"
+                            >
+                              Select Photo
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Add Selected Photo Button */}
+            {selectedImage && movieId && (
+              <div className="section-actions">
+                <button
+                  onClick={() => handleAddImage2Edit(movieId)}
+                  className="action-button select-button"
+                >
+                  Add Selected Photo
+                </button>
+                <button
+                  onClick={() => handleDeletePhoto(movieId)}
+                  className="action-button delete-button"
+                >
+                  Delete Photo
+                </button>
+              </div>
+            )}
+          </section>
+
+          {!movieId && (
+            <section className="content-section">
+              <h2 className="section-title">Cast Members</h2>
+
+              <div className="media-section">
+                <div
+                  className="media-header"
+                  onClick={() => setIsCastExpanded(!isCastExpanded)}
+                >
+                  <h3>Cast List</h3>
+                  <span>{isCastExpanded ? "▼" : "▶"}</span>
+                </div>
+                <div
+                  className={`media-content ${
+                    isCastExpanded ? "expanded" : ""
+                  }`}
+                >
+                  <div className="cast-grid">
+                    {credits.Acting.map((actor) => (
+                      <div key={actor.credit_id} className="cast-card">
+                        <div className="cast-image">
+                          <img
+                            src={
+                              actor.profile_path
+                                ? `https://image.tmdb.org/t/p/w185${actor.profile_path}`
+                                : "https://via.placeholder.com/150x150.png?text=No+Image"
+                            }
+                            alt={actor.name}
+                          />
+                        </div>
+                        <div className="cast-details">
+                          <h4>{actor.name}</h4>
+                          <p>as {actor.character}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </section>
+          )}
         </>
       )}
     </div>

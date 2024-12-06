@@ -21,7 +21,7 @@
   transition: filter 0.3s ease;
 }
 
-/* Add overlay for dimming effect */
+
 .Main .container::before {
   content: '';
   position: fixed;

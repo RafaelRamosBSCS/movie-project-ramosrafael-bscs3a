@@ -1,7 +1,7 @@
 .movie-view-container {
   min-height: 100vh;
   background-color: #111;
-  color: white;
+  color: rgb(255, 255, 255);
 }
 
 .hero-section {
@@ -59,7 +59,7 @@
 
 .movie-info {
   display: flex;
-  align-items: flex-end;
+  align-items: flex-start; 
   gap: 2rem;
 }
 
@@ -103,7 +103,7 @@
 
 
 .content-section {
-  padding: 2rem 4rem;
+  padding: 2rem 5rem;
 }
 
 
@@ -221,7 +221,7 @@
 
 .photo-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(375px, 1fr));
   gap: 1.5rem;
   margin-top: 2rem;
 }
@@ -230,6 +230,7 @@
   border-radius: 12px;
   overflow: hidden;
   aspect-ratio: 16/9;
+  margin: 1rem 0;
 }
 
 .movie-photo {
