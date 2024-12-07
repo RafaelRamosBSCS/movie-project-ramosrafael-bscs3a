@@ -80,6 +80,9 @@ const Home = () => {
   const { accessToken, userId } = useMovieContext();
   const navigate = useNavigate();
   const [movieGenres, setMovieGenres] = useState([]);
+  const [query, setQuery] = useState('');
+  const [searchResults, setSearchResults] = useState([]);
+  const [showResults, setShowResults] = useState(false);
 
   const [featuredMovie, setFeaturedMovie] = useState(null);
   const [isFading, setIsFading] = useState(false);
@@ -89,6 +92,21 @@ const Home = () => {
     topRated: [],
     recent: [],
   });
+
+  // Filter movies based on search query
+  useEffect(() => {
+    if (query.trim() === '') {
+      setSearchResults([]);
+      setShowResults(false);
+      return;
+    }
+
+    const filteredMovies = movieList.filter(movie => 
+      movie.title.toLowerCase().includes(query.toLowerCase())
+    );
+    setSearchResults(filteredMovies);
+    setShowResults(true);
+  }, [query, movieList]);
 
   useEffect(() => {
     if (featuredMovie?.tmdbId) {
@@ -106,7 +124,14 @@ const Home = () => {
         })
         .catch((error) => console.log("Error fetching genres:", error));
     }
-  }, [featuredMovie]);
+  }, [featuredMovie])
+
+  const handleMovieSelect = (movie) => {
+    navigate(`/view/${movie.id}`);
+    setMovie(movie);
+    setShowResults(false);
+    setQuery('');
+  };
 
   const getMovies = () => {
     axios
@@ -180,6 +205,44 @@ const Home = () => {
 
   return (
     <div className="streaming-container">
+    <div className="search-overlay">
+      <div className="search-container">
+        <input
+          type="text"
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          placeholder="Search movies..."
+          className="search-input"
+        />
+        {showResults && searchResults.length > 0 && (
+          <div className="search-results">
+            {searchResults.map((movie) => (
+              <div
+                key={movie.id}
+                className="search-result-item"
+                onClick={() => handleMovieSelect(movie)}
+              >
+                <div className="search-result-content">
+                  {movie.posterPath && (
+                    <img
+                      src={movie.posterPath}
+                      alt={movie.title}
+                      className="search-result-poster"
+                    />
+                  )}
+                  <div className="search-result-info">
+                    <div className="search-result-title">{movie.title}</div>
+                    <div className="search-result-year">
+                      {movie.releaseDate?.split('-')[0]}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
       {featuredMovie && movieList.length ? (
         <div className="hero-section">
           <div

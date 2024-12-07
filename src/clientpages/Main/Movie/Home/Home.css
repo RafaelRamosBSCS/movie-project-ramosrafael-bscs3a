@@ -230,3 +230,106 @@
   border-radius: 20px;
   backdrop-filter: blur(4px);
 }
+
+.search-overlay {
+  position: absolute;
+  top: 20px;
+  right: 4rem; /* Changed from left: 0 to right: 4rem */
+  z-index: 1000;
+  width: 500px; /* Added fixed width */
+}
+
+.search-container {
+  position: relative;
+  width: 100%; /* Changed from max-width */
+  margin: 0; /* Removed auto margins */
+}
+
+.search-input {
+  width: 100%;
+  padding: 12px 20px;
+  border: none;
+  border-radius: 30px;
+  background: rgba(0, 0, 0, 0.75);
+  color: white;
+  font-size: 1.1rem;
+  backdrop-filter: blur(8px);
+  transition: all 0.3s ease;
+}
+
+.search-input:focus {
+  outline: none;
+  background: rgba(0, 0, 0, 0.85);
+  box-shadow: 0 0 0 2px rgba(97, 218, 251, 0.5);
+}
+
+.search-results {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  right: 0;
+  background: rgba(0, 0, 0, 0.9);
+  border-radius: 10px;
+  max-height: 400px;
+  overflow-y: auto;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+  width: 100%;
+}
+
+/* For Webkit browsers (Chrome, Safari) */
+.search-results::-webkit-scrollbar {
+  width: 6px;
+}
+
+.search-results::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+}
+
+.search-results::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 3px;
+  transition: background 0.2s ease;
+}
+
+.search-results::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.5);
+}
+
+.search-result-item {
+  padding: 12px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.search-result-item:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.search-result-content {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.search-result-poster {
+  width: 45px;
+  height: 68px;
+  object-fit: cover;
+  border-radius: 4px;
+}
+
+.search-result-info {
+  flex: 1;
+}
+
+.search-result-title {
+  font-size: 1rem;
+  color: white;
+  margin-bottom: 4px;
+}
+
+.search-result-year {
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.6);
+}
