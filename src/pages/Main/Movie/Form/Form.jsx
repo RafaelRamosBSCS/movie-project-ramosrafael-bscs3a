@@ -509,14 +509,14 @@ const Form = () => {
       return;
     }
   
-    // Add debounce to prevent too many API calls
+    
     const timeoutId = setTimeout(() => {
       axios({
         method: "get",
         url: `https://api.themoviedb.org/3/search/movie?query=${query}&include_adult=false&language=en-US&page=1`,
         headers: {
           Accept: "application/json",
-          Authorization: `Bearer ${tmdbApiKey}`, // Make sure you're using the env variable here
+          Authorization: `Bearer ${tmdbApiKey}`, 
         },
       })
         .then((response) => {
@@ -527,9 +527,9 @@ const Form = () => {
           console.error("Error searching movies:", error);
           setSearchedMovieList([]);
         });
-    }, 500); // 500ms delay
+    }, 500); 
   
-    // Cleanup timeout
+    
     return () => clearTimeout(timeoutId);
   }, [query]);
 
