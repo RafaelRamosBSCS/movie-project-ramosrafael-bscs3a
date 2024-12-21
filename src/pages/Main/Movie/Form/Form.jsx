@@ -23,6 +23,7 @@ const Form = () => {
   const [isCastExpanded, setIsCastExpanded] = useState(false);
   const [isCurrentVideosExpanded, setIsCurrentVideosExpanded] = useState(false);
   const [isCurrentPhotosExpanded, setIsCurrentPhotosExpanded] = useState(false);
+  const tmdbApiKey = process.env.REACT_APP_TMDB_API_KEY;
 
   const { accessToken, userId } = useMovieContext(); //USERID IS ALSO BEING USED!!!
   // const accessToken = localStorage.getItem("accessToken");
@@ -316,23 +317,24 @@ const Form = () => {
     }
   };
 
-  const handleSearch = useCallback(() => {
-    axios({
-      method: "get",
-      url: `https://api.themoviedb.org/3/search/movie?query=${query}&include_adult=false&language=en-US&page=1`,
-      headers: {
-        Accept: "application/json",
-        Authorization:
-          "Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI2ODhiYjc3NjQwOGNhNjM3MWIyMTY3ZmFiNDdlOTQ0YiIsIm5iZiI6MTczMzA1ODcwNi41NDQ5OTk4LCJzdWIiOiI2NzRjNjA5MjM4NjI4MzkyN2RlMDE4N2YiLCJzY29wZXMiOlsiYXBpX3JlYWQiXSwidmVyc2lvbiI6MX0.oYRqyrw4Ltmuo7z_J7ZTtpw1QtWIQoO8DLF2tDDW0-A",
-      },
-    }).then((response) => {
-      setSearchedMovieList(response.data.results);
-      console.log(response.data.results);
-    });
-  }, [query]);
+  // const handleSearch = useCallback(() => {
+  //   axios({
+  //     method: "get",
+  //     url: `https://api.themoviedb.org/3/search/movie?query=${query}&include_adult=false&language=en-US&page=1`,
+  //     headers: {
+  //       Accept: "application/json",
+  //       Authorization:
+  //         `Bearer ${tmdbApiKey}`,
+  //     },
+  //   }).then((response) => {
+  //     setSearchedMovieList(response.data.results);
+  //     console.log(response.data.results);
+  //   });
+  // }, [query]);
 
   const handleSelectMovie = (movie) => {
     setSelectedMovie(movie);
+    setQuery("");
 
     Promise.all([
       axios.get(
@@ -340,20 +342,20 @@ const Form = () => {
         {
           headers: {
             Authorization:
-              "Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI2ODhiYjc3NjQwOGNhNjM3MWIyMTY3ZmFiNDdlOTQ0YiIsIm5iZiI6MTczMzA1ODcwNi41NDQ5OTk4LCJzdWIiOiI2NzRjNjA5MjM4NjI4MzkyN2RlMDE4N2YiLCJzY29wZXMiOlsiYXBpX3JlYWQiXSwidmVyc2lvbiI6MX0.oYRqyrw4Ltmuo7z_J7ZTtpw1QtWIQoO8DLF2tDDW0-A",
+              `Bearer ${tmdbApiKey}`,
           },
         }
       ),
       axios.get(`https://api.themoviedb.org/3/movie/${movie.id}/images`, {
         headers: {
           Authorization:
-            "Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI2ODhiYjc3NjQwOGNhNjM3MWIyMTY3ZmFiNDdlOTQ0YiIsIm5iZiI6MTczMzA1ODcwNi41NDQ5OTk4LCJzdWIiOiI2NzRjNjA5MjM4NjI4MzkyN2RlMDE4N2YiLCJzY29wZXMiOlsiYXBpX3JlYWQiXSwidmVyc2lvbiI6MX0.oYRqyrw4Ltmuo7z_J7ZTtpw1QtWIQoO8DLF2tDDW0-A",
+            `Bearer ${tmdbApiKey}`,
         },
       }),
       axios.get(`https://api.themoviedb.org/3/movie/${movie.id}/credits`, {
         headers: {
           Authorization:
-            "Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI2ODhiYjc3NjQwOGNhNjM3MWIyMTY3ZmFiNDdlOTQ0YiIsIm5iZiI6MTczMzA1ODcwNi41NDQ5OTk4LCJzdWIiOiI2NzRjNjA5MjM4NjI4MzkyN2RlMDE4N2YiLCJzY29wZXMiOlsiYXBpX3JlYWQiXSwidmVyc2lvbiI6MX0.oYRqyrw4Ltmuo7z_J7ZTtpw1QtWIQoO8DLF2tDDW0-A",
+            `Bearer ${tmdbApiKey}`,
         },
       }),
     ])
@@ -501,6 +503,37 @@ const Form = () => {
   }, [movieId]);
 
   useEffect(() => {
+    // Don't search if query is empty or too short
+    if (!query.trim() || query.length < 2) {
+      setSearchedMovieList([]);
+      return;
+    }
+  
+    // Add debounce to prevent too many API calls
+    const timeoutId = setTimeout(() => {
+      axios({
+        method: "get",
+        url: `https://api.themoviedb.org/3/search/movie?query=${query}&include_adult=false&language=en-US&page=1`,
+        headers: {
+          Accept: "application/json",
+          Authorization: `Bearer ${tmdbApiKey}`, // Make sure you're using the env variable here
+        },
+      })
+        .then((response) => {
+          setSearchedMovieList(response.data.results);
+          console.log(response.data.results);
+        })
+        .catch((error) => {
+          console.error("Error searching movies:", error);
+          setSearchedMovieList([]);
+        });
+    }, 500); // 500ms delay
+  
+    // Cleanup timeout
+    return () => clearTimeout(timeoutId);
+  }, [query]);
+
+  useEffect(() => {
     if (movieId) {
       axios
         .get(`/movies/${movieId}`)
@@ -526,20 +559,20 @@ const Form = () => {
               {
                 headers: {
                   Authorization:
-                    "Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI2ODhiYjc3NjQwOGNhNjM3MWIyMTY3ZmFiNDdlOTQ0YiIsIm5iZiI6MTczMzA1ODcwNi41NDQ5OTk4LCJzdWIiOiI2NzRjNjA5MjM4NjI4MzkyN2RlMDE4N2YiLCJzY29wZXMiOlsiYXBpX3JlYWQiXSwidmVyc2lvbiI6MX0.oYRqyrw4Ltmuo7z_J7ZTtpw1QtWIQoO8DLF2tDDW0-A",
+                    `Bearer ${tmdbApiKey}`,
                 },
               }
             ),
             axios.get(`https://api.themoviedb.org/3/movie/${tmdbId}/images`, {
               headers: {
                 Authorization:
-                  "Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI2ODhiYjc3NjQwOGNhNjM3MWIyMTY3ZmFiNDdlOTQ0YiIsIm5iZiI6MTczMzA1ODcwNi41NDQ5OTk4LCJzdWIiOiI2NzRjNjA5MjM4NjI4MzkyN2RlMDE4N2YiLCJzY29wZXMiOlsiYXBpX3JlYWQiXSwidmVyc2lvbiI6MX0.oYRqyrw4Ltmuo7z_J7ZTtpw1QtWIQoO8DLF2tDDW0-A",
+                  `Bearer ${tmdbApiKey}`,
               },
             }),
             axios.get(`https://api.themoviedb.org/3/movie/${tmdbId}/credits`, {
               headers: {
                 Authorization:
-                  "Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI2ODhiYjc3NjQwOGNhNjM3MWIyMTY3ZmFiNDdlOTQ0YiIsIm5iZiI6MTczMzA1ODcwNi41NDQ5OTk4LCJzdWIiOiI2NzRjNjA5MjM4NjI4MzkyN2RlMDE4N2YiLCJzY29wZXMiOlsiYXBpX3JlYWQiXSwidmVyc2lvbiI6MX0.oYRqyrw4Ltmuo7z_J7ZTtpw1QtWIQoO8DLF2tDDW0-A",
+                  `Bearer ${tmdbApiKey}`,
               },
             }),
           ]);
@@ -616,9 +649,9 @@ const Form = () => {
               placeholder="Search for a movie..."
               onChange={(event) => setQuery(event.target.value)}
             />
-            <button type="button" onClick={handleSearch}>
+            {/* <button type="button" onClick={handleSearch}>
               Search
-            </button>
+            </button> */}
           </div>
           <div className="search-results">
             {searchedMovieList.map((movie) => (

@@ -11,7 +11,7 @@ const SearchFunction = ({ movies, onSearch }) => {
         );
         onSearch(filteredMovies);
       } else {
-        onSearch(movies); // Show all movies when search is empty
+        onSearch(movies);
       }
     }, 300);
 

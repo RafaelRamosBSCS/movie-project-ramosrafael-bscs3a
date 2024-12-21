@@ -20,12 +20,14 @@
   padding: 2rem;
   border-radius: 12px;
   margin-bottom: 3rem;
+  position: relative; 
 }
 
 .search-container {
   display: flex;
   gap: 1rem;
   margin-bottom: 1rem;
+  
 }
 
 .search-container input {
@@ -50,8 +52,14 @@
 .search-results {
   max-height: 300px;
   overflow-y: auto;
-  background: rgba(255, 255, 255, 0.05);
+  background: rgb(59, 59, 59);
   border-radius: 8px;
+  position: absolute; 
+  top: 100%; 
+  left: 0; 
+  right: 0; 
+  z-index: 1000; 
+  margin-top: 0.5rem;
 }
 
 .search-result-item {
